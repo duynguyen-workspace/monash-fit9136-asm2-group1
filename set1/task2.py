@@ -1,6 +1,7 @@
 # ------------------ MAIN FUNCTION ------------------
 def main(user_info, mark_unprocessed):
     """
+    MAIN PROGRAM
     """
 
     # REUSABLE VARIABLES
@@ -12,23 +13,11 @@ def main(user_info, mark_unprocessed):
         valid_password = password
 
     # DEFAULT CONSTANTS
-    MENU_DEFAULT_PROMPT = """==================================
-Welcome to the Mark system v0.0!
-Please Login:
-1.Exit
-2.Login
-Your choice (number only): """
+    MENU_DEFAULT_PROMPT = "Welcome to the Mark system v0.0!\nPlease Login:\n1.Exit\n2.Login"
     
     MENU_DEFAULT_OPTIONS = ["1", "2"]
 
-    MENU_LOGIN_PROMPT = """==================================
-Welcome {valid_username}!
-Please choice one option below:
-1.Exit
-2.Re-Login
-3.Show mark records
-4.Show summarization
-Your choice (number only): """
+    MENU_LOGIN_PROMPT = "Welcome {}\nPlease choice one option below:\n1.Exit\n2.Re-Login\n3.Show mark records\n4.Show summarization".format(valid_username)
 
     MENU_LOGIN_OPTIONS = ["1", "2", "3", "4"]
 
@@ -70,12 +59,12 @@ Your choice (number only): """
 def login(valid_username: str, valid_password: str) -> bool:
     """
     """
-
     # is_username_correct = False
     # is_password_correct = False
 
-    input_username = input("Please key your account name: ")
+    print("==================================") # seperator
 
+    input_username = input("Please key your account name: ")
     input_password = input("Please key your password: ")
 
     if input_username != valid_username or input_password != valid_password:
@@ -93,11 +82,13 @@ def exit() -> None:
 def show_mark_records(mark_unprocessed: dict) -> None:
     """
     """
-    print("==================================")
+    print("==================================") # seperator
     print(f"Print {mark_unprocessed}")
 
 def show_summarization() -> None:
-    print("==================================")
+    """
+    """
+    print("==================================") # seperator
     print("Print summarization")
 
 # UTILITY FUNCTIONS --------------------------------------
@@ -112,12 +103,13 @@ def get_menu_choice(prompt: str, options: list) -> str:
     Return
         user_option: <str> the valid user's choice 
     """
-
     is_input_valid = False 
 
     while not is_input_valid:
-        user_input = input(prompt)
-
+        print("==================================") # seperator
+        print(prompt)
+        user_input = input("Your choice (number only): ")
+        
         if user_input in options:
             is_input_valid = True
     
