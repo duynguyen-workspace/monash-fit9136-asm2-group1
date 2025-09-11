@@ -72,7 +72,7 @@ def get_vocabs(text: str) -> Tuple[Tuple[str], Tuple[int]]:
         return ()
     
     # CONSTANTS
-    PUNCTUATIONS = "?!\":,\';."
+    PUNCTUATIONS = "!\"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~" # list of punctuations to check
     
     # PROCESS: split the word by blank space between
     words = text.split()
