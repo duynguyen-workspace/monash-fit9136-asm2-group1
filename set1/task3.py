@@ -70,31 +70,21 @@ def get_vocabs(text: str) -> Tuple[Tuple[str], Tuple[int]]:
     """
     if text is None or len(text) == 0:
         return ()
-    
+
     # CONSTANTS
-    PUNCTUATIONS = "!\"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~" # list of punctuations to check
-    
-    # PROCESS: split the word by blank space between
-    words = text.split()
-    
-    words_dict = {} # initialise words dictionary for counting
+    PUNCTUATIONS = "!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~"
 
-    # PROCESS: Check if word is (or contain) a punctuation and add it to dictionary for counting
+    # PROCESS: process the word list and generate a word dictionary containing its count
+    words = get_words(text, PUNCTUATIONS)
+    words_dict = {} 
+
     for word in words:
-        if word not in PUNCTUATIONS:
-            # Remove all the punctuations that stick with the word
-            cleaned_word = word.strip(PUNCTUATIONS)
-
-            # If the word is empty --> pass to next one
-            if len(cleaned_word) == 0:
-                continue
-
-            # Add word to dictionary / update word count
-            formatted_word = cleaned_word.lower()
-            if formatted_word not in words_dict.keys():
-                words_dict[formatted_word] = 1
-            else:
-                words_dict[formatted_word] += 1
+        # SUBPROCESS: add / update word (lowercase) into dictionary
+        formatted_word = word.lower()
+        if formatted_word not in words_dict.keys():
+            words_dict[formatted_word] = 1
+        else:
+            words_dict[formatted_word] += 1
     
     # --- MAIN OUTPUT: return the result tuple (if the dictionary is not empty)
     if len(words_dict) == 0:
@@ -118,11 +108,50 @@ def get_vocabs(text: str) -> Tuple[Tuple[str], Tuple[int]]:
 
     return result
 
+def get_words(text: str, delimeters: str) -> list:
+    """
+    This function extract a list of (lowercase) words from the input text
+
+    Params:
+        1. text: <str> the input text string
+        2. delimeters: <str> the symbols / characters that should be filtered from the word
+    
+    Returns:
+        words: <list> a list of lowercase words
+
+    """
+
+    # PROCESS: iterate each character, form into a word and add to word list
+    words = []
+    word_buffer = ""
+
+    for char in text:
+        # SUBPROCESS: while buffer is empty, skip the character if it is a blank space or a delimeter
+        if len(word_buffer) == 0 and (char.isspace() or char in delimeters):
+            continue
+
+        # SUBPROCESS: add character to buffer, extract word to the list and reset buffer
+        if char not in delimeters and not char.isspace():
+            word_buffer += char
+        else:
+            word = word_buffer.lower()
+            words.append(word)
+            word_buffer = "" 
+    
+    # SUBPROCESS: Add the remaining buffer (last word) to list 
+    if word_buffer:
+        words.append(word_buffer.lower())
+
+    # print(words)
+    return words
+
 # WARNING!!! *DO NOT* REMOVE THIS LINE
 # THIS ENSURES THAT THE CODE BELOW ONLY RUNS WHEN YOU HIT THE GREEN `Run` BUTTON, AND NOT THE BLUE `Test` BUTTON
 if __name__ == "__main__":
+    # get_words("BUL, Afghanistan - Government troops intervened in Afghanistan's latest outbreak of deadly fighting between warlords, flying from the capital to the far west on U.S. and NATO airplanes to retake an air base contested in the violence, officials said Sunday...")
     # the_example_str = "you are good at python , and you will be master of programming ."
     # the_example_str = ",. ? / ! # @"
-    the_example_str = "apple,"
-    print(get_vocabs_simple(the_example_str))
+    the_example_str = "Hello, apple?! 'You you', yOU, heLLo, I've, At, apPle"
+    # the_example_str = "BUL, Afghanistan - Government troops intervened in Afghanistan's latest outbreak of deadly fighting between warlords, flying from the capital to the far west on U.S. and NATO airplanes to retake an air base contested in the violence, officials said Sunday..."
+    # print(get_vocabs_simple(the_example_str))
     print(get_vocabs(the_example_str))
