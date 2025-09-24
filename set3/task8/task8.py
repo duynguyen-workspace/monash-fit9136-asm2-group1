@@ -78,7 +78,7 @@ class RoleBasedVocabSys:
                 "1.Exit\n"
                 "2.Logout / Re-Login\n"
                 "3.Show top 10 frequency vocabularies\n"
-                "4.Show last 10 frequency vocabularies"
+                "4.Show last 10 frequency vocabularies\n"
                 "5.Updating Vocabulary for adding\n"
                 "6.Updating Vocabulary for excluding"
             )
@@ -114,6 +114,14 @@ class RoleBasedVocabSys:
 
         access = self.current_user.get_access()
 
+        def get_frequency(word):
+            return word[1]
+
+        word_sorted_by_freq = sorted(self.text_processor
+                                     .word_freq.items(),
+                                     key=get_frequency,
+                                     reverse=True)
+
         if user_choice == "1":
             print("Exited")
             self.exit = True
@@ -124,12 +132,13 @@ class RoleBasedVocabSys:
             return
         elif user_choice == "3":
             # TODO: show vocab
-            print("Showing vocabulary...")
+            print("Showing top 10 vocabulary")
+            print(word_sorted_by_freq[:10])
             return
         elif user_choice == "4":
             # TODO: top 10 vocab
-
-            print("Showing statistics (top/bottom 10)...")
+            print("Showing bottom 10")
+            print(word_sorted_by_freq[-10:])
             return
 
         if access == "admin":
