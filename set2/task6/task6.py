@@ -12,6 +12,25 @@ def updating_for_adding(
         in_path: str,
         out_path: str
     ):
+    """
+    This function use for adding Files and Updating the Vocabulary
+    Task includes:
+        - Accept one or more new .txt files as input.
+        - Extract the vocabulary from these new files.
+        - Update the saved vocabulary file:
+            * Add new words that are not currently in the vocabulary,
+             with their corresponding frequency.
+            * Increase the frequency of existing words if they appear
+            in the new files.
+    Args:
+        stopwords_path: Path of file containing stopwords.
+        added_files: Path of file containing added words.
+        in_path: Path of file containing old words.
+        out_path: Path of file containing updated words.
+
+    Returns:
+        This function returns None. It saves the updated vocabulary to files.
+    """
     if isinstance(added_files, str):
         added_files = [added_files]
     stopwords = get_stopwords(stopwords_path)
@@ -43,6 +62,23 @@ def updating_for_deleting(
         in_path: str,
         out_path: str
     ):
+    """
+    This function use for deleting Files and Updating the Vocabulary.
+    Task includes:
+    - Accept one or more new .txt files as input.
+    - Extract the vocabulary from these new files.
+    - Update the saved vocabulary file:
+        * Delete words which appear in deleted files,
+        * Decrease the frequency of existing words if they appear in deleted files.
+    Args:
+        stopwords_path:
+        excluded_files:
+        in_path:
+        out_path:
+
+    Returns:
+        This function returns None. It saves the updated vocabulary to files.
+    """
     if isinstance(excluded_files, str):
         excluded_files = [excluded_files]
     stopwords = get_stopwords(stopwords_path)
@@ -73,3 +109,21 @@ def updating_for_deleting(
     save_idx2word(word, f"./{out_path}/idx2word.txt")
 
 if __name__ == '__main__':
+    added_files = [
+        "./data/new_add0.txt",
+        "./data/new_add1.txt"
+    ]
+
+    updating_for_adding(
+        stopwords_path="./data/stop_words_english.txt",
+        added_files=added_files,
+        in_path="./data/old",
+        out_path="./data/new"
+    )
+
+    updating_for_deleting(
+        stopwords_path="./data/stop_words_english.txt",
+        excluded_files="./data/new_delete0.txt",
+        in_path="./data/old",
+        out_path="./data/new"
+    )
