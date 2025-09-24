@@ -278,16 +278,13 @@ class TextProcessor:
                 continue
             words, freqs = vocabs
             for word, freq in zip(words, freqs):
-                delta[word] = delta.get(word, 0) + freq
+                if word in self.word_freq:
+                    new_freq = self.word_freq[word] - freq
+                    if new_freq > 0:
+                        self.word_freq[word] = new_freq
+                    else:
+                        self.word_freq.pop(word, None)
 
-        # delete word in word_freq
-        for word, freq in delta.items():
-            if word in self.word_freq:
-                new_freq = self.word_freq[word] - freq
-                if new_freq > 0:
-                    self.word_freq[word] = new_freq
-                else:
-                    self.word_freq.pop(word, None)
 
         self.save()
 
