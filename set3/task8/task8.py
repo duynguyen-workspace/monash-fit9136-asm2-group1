@@ -177,8 +177,9 @@ class RoleBasedVocabSys:
 
         access = self.current_user.get_access()
 
-        def get_frequency(word):
-            return word[1]
+        def get_frequency(element):
+            frequency = element[1]
+            return frequency
 
         word_sorted_by_freq = sorted(self.text_processor
                                      .word_freq.items(),
