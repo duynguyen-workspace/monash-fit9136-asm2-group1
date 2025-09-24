@@ -59,6 +59,9 @@ class RoleBasedVocabSys:
     RoleBasedVocabSys class to define instance of role-based vocabulary system.
     Instance Variables:
         users_info (dict): Dictionary of collection of users
+        current_user (Role): current user log in
+        text_processor (TextProcessor): Text processor
+        exit (boolean): Check is system exit or not.
     """
     def __init__(
             self,
@@ -69,6 +72,14 @@ class RoleBasedVocabSys:
     ):
         # YOUR CODES START HERE
         # replace with correct initialization
+        """
+        Constructor a Role based vocabulary system
+        Args:
+            users_info: Dictionary of collection of users.
+            stopwords_filepath: Path of stopwords file.
+            corpus_filepath: Path of corpus file.
+            idx2label_filepath: Path of idx2label file.
+        """
         self.users_info = users_info
         self.current_user = None
         self.text_processor = TextProcessor(stopwords_filepath,
@@ -78,6 +89,12 @@ class RoleBasedVocabSys:
 
     def start(self):
         # YOUR CODES START HERE
+        """
+        This function start role based vocabulary system.
+        Returns:
+            This function return nothing. It will start role based vocabulary system and exit
+            when user choose option exit.
+        """
         while not self.exit:
             menu = self.generate_menu()
             print(menu)
@@ -85,7 +102,11 @@ class RoleBasedVocabSys:
 
     def generate_menu(self) -> str:
         # YOUR CODES START HERE
-        """This function generate_menu"""
+        """
+        This function generate_menu which based on user role
+        Returns:
+            str: The CLI of system in terminal based on user's role.
+        """
         if self.current_user is None:
             return ("Welcome to the Mark system v0.0!\n"
                     "Please Login:\n"
@@ -112,18 +133,33 @@ class RoleBasedVocabSys:
 
     def verify_user_choice(self, user_choice) -> bool:
         # YOUR CODES START HERE
+        """
+        This function verify_user_choice which based on user role.
+        Args:
+            user_choice str: user choice from 1 to 6 and verified by user's role
+
+        Returns:
+            bool: True if user choice is valid, False otherwise.
+        """
+        # List of choice
         choices = ["1", "2", "3", "4", "5", "6"]
         if self.current_user is None:
             return user_choice in choices[:2]
+        # Verify for reader
         elif self.current_user.get_access() == "reader":
             return user_choice in choices[:5]
+        # Verify for admin
         elif self.current_user.get_access() == "admin":
             return user_choice in choices
         else:
             return False
 
     def get_user_choice(self):
-        """Read a single valid menu choice and dispatch the action based on state/role."""
+        """
+        Read a single valid menu choice and dispatch the action based on state/role.
+        Returns:
+            This fucntion return nothing. This return is used for exiting the function
+        """
 
         while True:
             user_choice = input("Enter your choice: ").strip()
@@ -183,15 +219,20 @@ class RoleBasedVocabSys:
                 print("Vocabulary updated (removed).")
 
     def login(self):
+        """
+        This function allow user login their account when the system starts.
+        Returns:
+            This function return nothing.
+        """
         username_in = input("Please key your account name: ").strip()
         password = input("Please key your account password: ").strip()
 
         uname = username_in.lower()
         matched_key = None
         user = None
-        for k, v in self.users_info.items():
-            if k.lower() == uname:
-                matched_key, user = k, v
+        for key, value in self.users_info.items():
+            if key.lower() == uname:
+                matched_key, user = key, value
                 break
 
         if not user:
