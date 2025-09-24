@@ -216,6 +216,7 @@ def get_text_from_files(data_path: str) -> str:
 
     return text
 
+
 class TextProcessor:
     vocab = {}
 
@@ -232,7 +233,7 @@ class TextProcessor:
         self.corpus_df = None
         self.stopwords = get_stopwords(stopwords_filepath)
         self.idx2label = self.load_idx2label(idx2label_filepath)
-        self.load()
+        self.add_file(corpus_filepath)
 
     def load_idx2label(self, idx2label_filepath):
         with open(idx2label_filepath) as f:
@@ -254,41 +255,61 @@ class TextProcessor:
         texts = joined_table["text"]
 
         for text in texts:
-            vocabs = get_vocabs(text=text,stopwords=stopwords)
+            vocabs = get_vocabs(text=text, stopwords=stopwords)
             if not vocabs:
                 continue
 
             vocabs, freqs = vocabs
-            for vocab,freq in zip(vocabs, freqs):
+            for vocab, freq in zip(vocabs, freqs):
                 self.word_freq[vocab] = self.word_freq.get(vocab, 0) + freq
         self.save()
 
-
     def delete_file(self, delete_file_path) -> None:
         # YOUR CODES START HERE
-        pass
+        df = pd.read_csv(delete_file_path)
+        self.idx2label["label"] = self.idx2label["label"].astype(int)
+        df = pd.merge(df, self.idx2label, on="label", how="inner")
+
+        # dict of delete word
+        delta = {}
+        for text in df["text"]:
+            vocabs = get_vocabs(text=text, stopwords=self.stopwords)
+            if not vocabs:
+                continue
+            words, freqs = vocabs
+            for word, freq in zip(words, freqs):
+                delta[word] = delta.get(word, 0) + freq
+
+        # delete word in word_freq
+        for word, freq in delta.items():
+            if word in self.word_freq:
+                new_freq = self.word_freq[word] - freq
+                if new_freq > 0:
+                    self.word_freq[word] = new_freq
+                else:
+                    self.word_freq.pop(word, None)
+
+        self.save()
 
     def load(self) -> None:
         # YOUR CODES START HERE
 
         word_freq = {}
-        with open("word_freq.txt", encoding="utf-8") as f:
+        with open("word_freq.txt", "r", encoding="utf-8") as f:
             for line in f:
                 word, count = line.strip().split()
                 word_freq[word] = int(count)
         self.word_freq = word_freq
 
-
         word2idx = {}
-        with open("word2idx.txt", encoding="utf-8") as f:
+        with open("word2idx.txt", "r", encoding="utf-8") as f:
             for line in f:
                 word, index = line.strip().split()
                 word2idx[word] = int(index)
         self.word2idx = word2idx
 
-
         idx2word = {}
-        with open("idx2word.txt", encoding="utf-8") as f:
+        with open("idx2word.txt", "r", encoding="utf-8") as f:
             for line in f:
                 index, word = line.strip().split()
                 idx2word[int(index)] = word
@@ -316,7 +337,8 @@ class TextProcessor:
 
         with open("idx2word.txt", 'w') as f:
             # use join with generator expression
-            f.write("".join(f"{index} {word}\n" for index, word in self.word2idx.items()))
+            f.write("".join(f"{index} {word}\n" for index, word in self.idx2word.items()))
+
 
 if __name__ == "__main__":
     tp = TextProcessor(

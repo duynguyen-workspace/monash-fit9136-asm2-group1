@@ -79,6 +79,8 @@ class RoleBasedVocabSys:
                 "2.Logout / Re-Login\n"
                 "3.Show top 10 frequency vocabularies\n"
                 "4.Show last 10 frequency vocabularies"
+                "5.Updating Vocabulary for adding\n"
+                "6.Updating Vocabulary for excluding"
             )
 
     def verify_user_choice(self, user_choice) -> bool:
@@ -109,7 +111,6 @@ class RoleBasedVocabSys:
             elif user_choice == "2":
                 self.login()
             return
-
 
         access = self.current_user.get_access()
 
@@ -144,9 +145,6 @@ class RoleBasedVocabSys:
 
                 self.text_processor.delete_file(path)
                 print("Vocabulary updated (removed).")
-
-
-
 
     def login(self):
         username_in = input("Please key your account name: ").strip()
