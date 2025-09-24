@@ -1,10 +1,8 @@
 import pandas as pd
 import json
 from typing import Dict
-from typing import Tuple, List, Set, Optional
-import os
 
-def get_stopwords(stopwords_file: str) -> List[str]:
+def get_stopwords(stopwords_file: str) -> list[str]:
     """
     This function gets all the stop words from the file
 
@@ -24,7 +22,7 @@ def get_stopwords(stopwords_file: str) -> List[str]:
     return stopwords
 
 
-def get_vocabs(text: str, stopwords: List) -> Tuple[Tuple[str], Tuple[int]]:
+def get_vocabs(text: str, stopwords: list) -> tuple[tuple[str], tuple[int]]:
     """
     This function splits the text into words and count number of time each word appears
 
@@ -137,86 +135,6 @@ def check_word_has_number(word: str) -> bool:
 
     return False
 
-
-def process_mini_dataset(
-        stopwords: Set[str],
-        data_path: str = 'data',
-        category: Optional[str] = None,
-) -> Tuple[Tuple[str], Tuple[int]]:
-    """
-    This function read all the .txt files from the data path and generate a vocabulary list
-
-    Params:
-        1. stop_words: <Set[str]> a list of word that should not be included in the vocab list
-        2. data_path: <str> the path to the 'data' folder that contains the .txt files
-        3. category: <str> the category name
-
-    Return:
-        - vocabs: <((str), (int))> a list of vocabulary consists of two tuples:
-            + (str) the list of vocabularies name
-            + (int) the count of each vocabulary appears
-
-    Notes:
-        - if no category --> generate vocabularies from all text files (accross all categories)
-        - if a category is provided --> generate vocabullaries from all the text file in that category folder
-
-    """
-
-    # PROCESS: get all the files / folders in the data path
-    all_files_in_dir = os.listdir(data_path)
-    curr_data_path = data_path
-
-    # @CASE 1: no category provide --> get vocabs from all txt files of all categories
-    if category and category in all_files_in_dir:
-        curr_data_path = os.path.join(data_path, category)
-        all_files_in_dir = os.listdir(curr_data_path)
-        text = get_text_from_files(curr_data_path)
-
-    # @CASE 2: a category is provided --> get vocabs from all .txt file of that category
-    else:
-        # SUBPROCESS: get all the category folders
-        categories = []
-        for file_name in all_files_in_dir:
-            if not file_name.endswith(".txt"):
-                print(file_name)
-                categories.append(file_name)
-
-        # SUBPROCESS: concatenate all the .txt file from each category folder
-        text = ""
-        for category_name in categories:
-            category_path = os.path.join(curr_data_path, category_name)
-            category_text = get_text_from_files(category_path)
-            text += category_text
-
-    # OUTPUT: get the vocabularies list
-    vocabs = get_vocabs(text, stopwords)
-    return vocabs
-
-
-def get_text_from_files(data_path: str) -> str:
-    """
-    This function read all the .txt file inside the path and concatenate its content into
-    a string
-
-    Params:
-        1. data_path: <str> the path to the folder containing the files
-
-    Returns:
-        - text: <str> the content of all files in that folder
-    """
-    all_files_in_dir = os.listdir(data_path)
-
-    text = ""
-    for file_name in all_files_in_dir:
-        file_path = os.path.join(data_path, file_name)
-        with open(file_path, "r") as f:
-            content = f.read().strip()
-            # print(f"{file_name}: {content}")
-            text += f"{content} "
-
-    return text
-
-
 class TextProcessor:
     vocab = {}
 
@@ -255,58 +173,41 @@ class TextProcessor:
         texts = joined_table["text"]
 
         for text in texts:
-            vocabs = get_vocabs(text=text, stopwords=stopwords)
+            vocabs = get_vocabs(text=text,stopwords=stopwords)
             if not vocabs:
                 continue
 
             vocabs, freqs = vocabs
-            for vocab, freq in zip(vocabs, freqs):
+            for vocab,freq in zip(vocabs, freqs):
                 self.word_freq[vocab] = self.word_freq.get(vocab, 0) + freq
         self.save()
 
+
     def delete_file(self, delete_file_path) -> None:
         # YOUR CODES START HERE
-        df = pd.read_csv(delete_file_path)
-        self.idx2label["label"] = self.idx2label["label"].astype(int)
-        df = pd.merge(df, self.idx2label, on="label", how="inner")
-
-        # dict of delete word
-        delta = {}
-        for text in df["text"]:
-            vocabs = get_vocabs(text=text, stopwords=self.stopwords)
-            if not vocabs:
-                continue
-            words, freqs = vocabs
-            for word, freq in zip(words, freqs):
-                if word in self.word_freq:
-                    new_freq = self.word_freq[word] - freq
-                    if new_freq > 0:
-                        self.word_freq[word] = new_freq
-                    else:
-                        self.word_freq.pop(word, None)
-
-
-        self.save()
+        pass
 
     def load(self) -> None:
         # YOUR CODES START HERE
 
         word_freq = {}
-        with open("word_freq.txt", "r", encoding="utf-8") as f:
+        with open("word_freq.txt","r",encoding="utf-8") as f:
             for line in f:
                 word, count = line.strip().split()
                 word_freq[word] = int(count)
         self.word_freq = word_freq
 
+
         word2idx = {}
-        with open("word2idx.txt", "r", encoding="utf-8") as f:
+        with open("word2idx.txt", "r",encoding="utf-8") as f:
             for line in f:
                 word, index = line.strip().split()
                 word2idx[word] = int(index)
         self.word2idx = word2idx
 
+
         idx2word = {}
-        with open("idx2word.txt", "r", encoding="utf-8") as f:
+        with open("idx2word.txt", "r",encoding="utf-8") as f:
             for line in f:
                 index, word = line.strip().split()
                 idx2word[int(index)] = word
@@ -335,7 +236,6 @@ class TextProcessor:
         with open("idx2word.txt", 'w') as f:
             # use join with generator expression
             f.write("".join(f"{index} {word}\n" for index, word in self.idx2word.items()))
-
 
 if __name__ == "__main__":
     tp = TextProcessor(
