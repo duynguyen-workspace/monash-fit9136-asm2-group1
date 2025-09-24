@@ -1,3 +1,4 @@
+# copy your task 7 code here
 import pandas as pd
 import json
 from typing import Dict
@@ -136,8 +137,16 @@ def check_word_has_number(word: str) -> bool:
     return False
 
 class TextProcessor:
-    vocab = {}
+    """
+    Text Processor class for processing word in corpus in each label.
 
+    Instance Variables:
+        word_freq (dict): The dictionary containing the words and their frequencies.
+        word2idx (dict): The dictionary containing the words and their indexes.
+        idx2word (dict): The dictionary containing keys are indexes and values are words.
+        stopwords (list): list of stop words.
+        idx2label (pandas.DataFrame): DataFrame mapping label ids to label names.
+    """
     def __init__(
             self,
             stopwords_filepath: str,
@@ -145,6 +154,13 @@ class TextProcessor:
             idx2label_filepath: str
     ) -> None:
         # YOUR CODES START HERE
+        """
+        Create a new TextProcessor instance.
+        Args:
+            stopwords_filepath: Path of the stop words file.
+            corpus_filepath: Path of the corpus file.
+            idx2label_filepath: Path of the idx2label file.
+        """
         self.word_freq = {}
         self.word2idx = {}
         self.idx2word = {}
@@ -154,6 +170,13 @@ class TextProcessor:
         self.add_file(corpus_filepath)
 
     def load_idx2label(self, idx2label_filepath):
+        """
+        Load the file containing indexes and their labels.
+        Args:
+            idx2label_filepath (str):  path of the idx2label file.
+        Returns:
+            label_df (pandas.DataFrame): DataFrame mapping label ids to label names.
+        """
         with open(idx2label_filepath) as f:
             mapping_dict = json.load(f)
         label_df = pd.DataFrame(mapping_dict.items(), columns=["label", "label_name"])
@@ -161,6 +184,14 @@ class TextProcessor:
 
     def add_file(self, add_file_path: str) -> None:
         # YOUR CODES START HERE
+        """
+        Add the word from a file to vocabulary and update the keys and word frequency.
+        Args:
+            add_file_path: str: The path of the file containing the added words.
+
+        Returns:
+            This function does not return anything. It saves the vocabulary and word frequency by save method
+        """
         self.corpus_df = pd.read_csv(add_file_path)
         self.idx2label["label"] = self.idx2label["label"].astype(int)
 
@@ -168,6 +199,7 @@ class TextProcessor:
         label_table = self.idx2label
         stopwords = self.stopwords
 
+        # Join corpus dataframe and label dataframe with inner join on label
         joined_table = pd.merge(corpus_table, label_table, on="label", how="inner")
 
         texts = joined_table["text"]
@@ -178,6 +210,7 @@ class TextProcessor:
                 continue
 
             vocabs, freqs = vocabs
+            # Update the value in the vocabulary dictionary
             for vocab,freq in zip(vocabs, freqs):
                 self.word_freq[vocab] = self.word_freq.get(vocab, 0) + freq
         self.save()
@@ -185,6 +218,14 @@ class TextProcessor:
 
     def delete_file(self, delete_file_path) -> None:
         # YOUR CODES START HERE
+        """
+        Delete the words frequency from a delete file and save the vocabulary and word frequency.
+        Args:
+            delete_file_path: The path of the file containing the deleted words.
+
+        Returns:
+            This function does not return anything. It saves the vocabulary and word frequency by save method
+        """
         df = pd.read_csv(delete_file_path)
         self.idx2label["label"] = self.idx2label["label"].astype(int)
         df = pd.merge(df, self.idx2label, on="label", how="inner")
@@ -198,6 +239,7 @@ class TextProcessor:
             for word, freq in zip(words, freqs):
                 if word in self.word_freq:
                     new_freq = self.word_freq[word] - freq
+                    # if the frequency minus to 0 remove the word from dictionary
                     if new_freq > 0:
                         self.word_freq[word] = new_freq
                     else:
@@ -208,31 +250,43 @@ class TextProcessor:
 
     def load(self) -> None:
         # YOUR CODES START HERE
-
+        """
+        Load the vocabulary and word frequency from provided file paths
+        and update value in word2idx, word_freq, idx2word
+        of the instance.
+        Returns:
+        This function does not return anything. It load the vocabulary and word frequency.
+        """
+        # Load word frequency dict
         word_freq = {}
-        with open("word_freq.txt","r",encoding="utf-8") as f:
+        with open("word_freq.txt","r") as f:
             for line in f:
                 word, count = line.strip().split()
                 word_freq[word] = int(count)
         self.word_freq = word_freq
 
-
+        # Load word2idx dict
         word2idx = {}
-        with open("word2idx.txt", "r",encoding="utf-8") as f:
+        with open("word2idx.txt", "r") as f:
             for line in f:
                 word, index = line.strip().split()
                 word2idx[word] = int(index)
         self.word2idx = word2idx
 
-
+        # Load idx2word dict
         idx2word = {}
-        with open("idx2word.txt", "r",encoding="utf-8") as f:
+        with open("idx2word.txt", "r") as f:
             for line in f:
                 index, word = line.strip().split()
                 idx2word[int(index)] = word
         self.idx2word = idx2word
 
     def save(self) -> None:
+        """
+        Save the vocabulary and word frequency , word2idx, and idx2word to
+        word_freq.txt, word2idx.txt, and idx2word.txt.
+        This function does not return anything. It save the vocabulary and word frequency.
+        """
         # YOUR CODES START HERE
         def get_frequency(word):
             return word[1]
@@ -244,14 +298,17 @@ class TextProcessor:
             self.word2idx[word] = index
             self.idx2word[index] = word
 
+        # Save word frequency
         with open("word_freq.txt", 'w') as f:
             # use join with generator expression
             f.write("".join((f"{word} {freq}\n" for word, freq in word_sorted_by_freq)))
 
+        # Save word2idx
         with open("word2idx.txt", 'w') as f:
             # use join with generator expression
             f.write("".join(f"{word} {index}\n" for word, index in self.word2idx.items()))
 
+        # Save idx2word
         with open("idx2word.txt", 'w') as f:
             # use join with generator expression
             f.write("".join(f"{index} {word}\n" for index, word in self.idx2word.items()))

@@ -2,36 +2,64 @@ from typing import Optional
 import os
 from task7 import TextProcessor
 
-WELCOME_MESSAGE = "Welcome to the Mark system v0.0!"
 
 
 class Role:
+    """
+    Role class to define an user when login.
+
+    Instance Variables:
+        user_name(str): user name of user.
+        access (str): access level of user.
+        name (str): full name of user.
+    """
     def __init__(self, user_name: str, access: str, name: str):
         # YOUR CODES START HERE
-        """Role class store and return the user's user_name
-        display name, and acess level"""
+        """
+        Constructor a new user with role
+        Args:
+            user_name (str): value when init user name of user.
+            access (str): value when init access level of user.
+            name (str): value when init name of user.
+        """
         self.user_name = user_name
         self.access = access
         self.name = name
 
     def get_user_name(self):
         # YOUR CODES START HERE
-        """This function return user name"""
+        """
+        This function return user name
+        Returns:
+            user_name (str): user name of instance.
+        """
         return self.user_name
 
     def get_access(self):
         # YOUR CODES START HERE
-        """This function return access"""
+        """
+        This function return access
+        Returns:
+            access (str): instance's level of access .
+        """
         return self.access
 
     def get_name(self):
         # YOUR CODES START HERE
-        """This function return name"""
+        """
+        This function return name
+        Returns:
+            name (str): full name of instance.
+        """
         return self.name
 
 
 class RoleBasedVocabSys:
-
+    """
+    RoleBasedVocabSys class to define instance of role-based vocabulary system.
+    Instance Variables:
+        users_info (dict): Dictionary of collection of users
+    """
     def __init__(
             self,
             users_info,
@@ -39,7 +67,6 @@ class RoleBasedVocabSys:
             corpus_filepath,
             idx2label_filepath
     ):
-        """Define user"""
         # YOUR CODES START HERE
         # replace with correct initialization
         self.users_info = users_info
