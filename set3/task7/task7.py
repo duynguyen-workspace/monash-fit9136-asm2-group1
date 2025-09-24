@@ -185,7 +185,26 @@ class TextProcessor:
 
     def delete_file(self, delete_file_path) -> None:
         # YOUR CODES START HERE
-        pass
+        df = pd.read_csv(delete_file_path)
+        self.idx2label["label"] = self.idx2label["label"].astype(int)
+        df = pd.merge(df, self.idx2label, on="label", how="inner")
+
+        # dict of delete word
+        for text in df["text"]:
+            vocabs = get_vocabs(text=text, stopwords=self.stopwords)
+            if not vocabs:
+                continue
+            words, freqs = vocabs
+            for word, freq in zip(words, freqs):
+                if word in self.word_freq:
+                    new_freq = self.word_freq[word] - freq
+                    if new_freq > 0:
+                        self.word_freq[word] = new_freq
+                    else:
+                        self.word_freq.pop(word, None)
+
+
+        self.save()
 
     def load(self) -> None:
         # YOUR CODES START HERE
