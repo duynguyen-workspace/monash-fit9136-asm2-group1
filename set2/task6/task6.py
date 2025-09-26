@@ -23,10 +23,10 @@ def updating_for_adding(
             * Increase the frequency of existing words if they appear
             in the new files.
     Args:
-        stopwords_path: Path of file containing stopwords.
-        added_files: Path of file containing added words.
-        in_path: Path of file containing old words.
-        out_path: Path of file containing updated words.
+        stopwords_path (str): Path of file containing stopwords.
+        added_files (str | list): Path of file or list files containing added words.
+        in_path (str): Path of file containing old words.
+        out_path (str): Path of file containing updated words.
 
     Returns:
         This function returns None. It saves the updated vocabulary to files.
@@ -71,10 +71,10 @@ def updating_for_deleting(
         * Delete words which appear in deleted files,
         * Decrease the frequency of existing words if they appear in deleted files.
     Args:
-        stopwords_path:
-        excluded_files:
-        in_path:
-        out_path:
+        stopwords_path (str): Path of file containing stopwords.
+        excluded_files (str | list): Path of file or list files containing deleted words.
+        in_path (str): Path of file containing old words.
+        out_path (str): Path of file containing updated words.
 
     Returns:
         This function returns None. It saves the updated vocabulary to files.

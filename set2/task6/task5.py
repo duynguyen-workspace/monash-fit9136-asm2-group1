@@ -1,4 +1,3 @@
-# copy your task5 code here
 from typing import Tuple
 
 
@@ -8,9 +7,9 @@ def save_word_freq(word: Tuple[str], freq: Tuple[int], file_path: str = 'word_fr
     sorts the resulting pairs in descending order of frequency,
     and then joins its elements into a string for saving to word_freq.txt.
     Args:
-        word: Tuple[str]: Tuple of word.
-        freq: Tuple[int] (Tuple): Tuple of each word frequency.
-        file_path: str='word_freq.txt' : File path to save word frequencies.
+        word (Tuple[str]): Tuple of word.
+        freq (Tuple[int]): Tuple of each word frequency.
+        file_path (str='word_freq.txt') : File path to save word frequencies.
     Returns:
         None: The function does not return any value; it save the tuples after processing into a file.
     """
@@ -19,6 +18,14 @@ def save_word_freq(word: Tuple[str], freq: Tuple[int], file_path: str = 'word_fr
 
     # Closure function to get element in tuple
     def get_frequency(element):
+        """
+        This function returns the frequency of a word in iterator.
+        Args:
+            element: word element.
+
+        Returns:
+            frequency: frequency of word.
+        """
         frequency = element[1]
         return frequency
 
@@ -35,8 +42,8 @@ def save_word2idx(word: Tuple[str], file_path: str = "word2idx.txt"):
     This function generate a lookup table that assigns a unique index to each word based
     on its alphabetical order (i.e., ascending order by word), and save it as word2idx.txt
     Args:
-        word: Tuple[str]: Tuple of words.
-        file_path: str='word2idx.txt' : File path to save word frequencies.
+        word: (Tuple[str]): Tuple of words.
+        file_path (str='word2idx.txt') : File path to save word frequencies.
     Returns:
         None: The function does not return any value; it save the tuples after processing into a file.
     """
@@ -56,8 +63,8 @@ def save_idx2word(word: Tuple[str], file_path: str = "idx2word.txt"):
     This function generate a lookup table that assigns a unique index to each word based
     on its alphabetical order (i.e., ascending order by word) with reverse mapping, and save it as idx2word.txt
     Args:
-        word: Tuple[str]: Tuple of words.
-        file_path: str='idx2word.txt' : File path to save word frequencies.
+        word (Tuple[str]): Tuple of words.
+        file_path (str='idx2word.txt') : File path to save word frequencies.
     Returns:
         None: The function does not return any value; it save the tuples after processing into a file.
     """
@@ -78,7 +85,7 @@ def load_word_freq(file_path: str) -> dict:
     Load the saved vocabulary from file path and store it in a Python dictionary,
     where the keys are words and the values are their frequencies.
     Args:
-        file_path: The file path to load the vocabulary from.
+        file_path (str): The file path to load the vocabulary from.
     Returns:
         dict: This function return list of word_freq.
     """
@@ -95,7 +102,7 @@ def load_word2idx(file_path: str):
     Load the saved vocabulary from file path and store it in a Python dictionary, where the keys are words and
     the values are their indexes.
     Args:
-        file_path: The file path to load the vocabulary from.
+        file_path (str): The file path to load the vocabulary from.
 
     Returns:
         dict: This function return list of word2idx.
@@ -113,7 +120,7 @@ def load_idx2word(file_path: str):
     Load the saved vocabulary from file path and store it in a Python dictionary, where the keys are indexes and
     the values are words.
     Args:
-        file_path: The file path to load the vocabulary from.
+        file_path (str): The file path to load the vocabulary from.
 
     Returns:
         dict: This function return list of idx2word.

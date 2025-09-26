@@ -6,7 +6,7 @@ def mark_str_to_dict(mark_str: str) -> Dict[str, int | float]:
     Convert a string of marks where each pair has form "A{1,2,3,...}:score"
     into a dictionary.
     Args:
-        mark_str: str: String of marks.
+        mark_str (str): String of marks.
 
     Returns:
         Dict[str, int | float]: The dictionary which mapping
@@ -25,7 +25,7 @@ def fix_invalid_value(mark: int | float) -> int | float:
     """
     Fix the invalid value of a mark if it not in the interval [0,100].
     Args:
-        mark: int | float: The mark to check value.
+        mark (int | float): The mark to check value.
 
     Returns:
         int | float: Return -inf value if it is not in the interval [0,100]
@@ -41,7 +41,7 @@ def mark_str_to_dict_revised(mark_str: str) -> Dict[str, int | float]:
     Convert the strings of mark to dictionary with valid value.
     The value will have type float if it has . in string else its type is int.
     Args:
-        mark_str: str: String of marks.
+        mark_str (str): String of marks.
 
     Returns:
         Dict[str, int | float]: The dictionary which mapping each mark to its assignment
@@ -64,7 +64,7 @@ def process_multiple_students_marks(mark_dict: Dict[str, str]) -> Dict[str, int 
     Handle multiple students marks with their values have type string then after conversion
     return the collection for all students.
     Args:
-        mark_dict: Dict[str, str]: Multiple students' records.
+        mark_dict (Dict[str, str]): Multiple students' records.
 
     Returns:
          Dict[str, int | float]: Dictionary which is collection for all students.
@@ -78,8 +78,8 @@ def summarize_marks(marks: Dict[str, Dict], split: str) -> dict:
     Summarize the average score, number of students, number of marks in one Assignment in
     the collection of students.
     Args:
-        marks: Dict[str, Dict]: Dictionary which is collection for all students.
-        split: str: Assignment want to summarize.
+        marks (Dict[str, Dict]): Dictionary which is collection for all students.
+        split (str): Assignment want to summarize.
 
     Returns:
         dict: which contain average score, number of invalid marks,

@@ -47,11 +47,12 @@ def get_vocabs(text: str, stopwords: List) -> Tuple[Tuple[str], Tuple[int]]:
     for word in words:
         # SUBPROCESS: skip the word if word length < 2, word contains number or word is a stopword
         word_size = len(word)
-        if word_size < 2 or word in stopwords or check_word_has_number(word):
+        formatted_word = word.lower()
+
+        if word_size < 2 or formatted_word in stopwords or check_word_has_number(formatted_word):
             continue
 
         # SUBPROCESS: add / update word (lowercase) into dictionary
-        formatted_word = word.lower()
         if formatted_word not in words_dict.keys():
             words_dict[formatted_word] = 1
         else:
@@ -112,7 +113,6 @@ def get_words(text: str, delimiters: str) -> list:
     if word_buffer:
         words.append(word_buffer.lower())
 
-    # print(words)
     return words
 
 def check_word_has_number(word: str) -> bool:
@@ -172,7 +172,6 @@ def process_mini_dataset(
         categories = []
         for file_name in all_files_in_dir:
             if not file_name.endswith(".txt"):
-                print(file_name)
                 categories.append(file_name)
 
         # SUBPROCESS: concatenate all the .txt file from each category folder 
@@ -204,7 +203,6 @@ def get_text_from_files(data_path: str) -> str:
         file_path = os.path.join(data_path, file_name)
         with open(file_path, "r") as f:
             content = f.read().strip()
-            # print(f"{file_name}: {content}")
             text += f"{content} "
         
     return text
