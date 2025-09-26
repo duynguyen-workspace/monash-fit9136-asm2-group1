@@ -16,17 +16,19 @@ def mark_str_to_dict(mark_str: str) -> Dict[str, int | float]:
     marks = mark_str.split(",")
     for mark in marks:
         key , value = mark.split(":")
+        # Prevent from having whitespace in value
+        value = value.strip()
         mark_dict[key.strip()] = float(value) if "." in value else int(value)
     return mark_dict
 
 def fix_invalid_value(mark: int | float) -> int | float:
     """
-    Fix the invalid value of a mark if it not in the interval (0,100).
+    Fix the invalid value of a mark if it not in the interval [0,100].
     Args:
         mark: int | float: The mark to check value.
 
     Returns:
-        int | float: Return -inf value if it is not in the interval (0,100)
+        int | float: Return -inf value if it is not in the interval [0,100]
         else return the original value.
     """
     if mark > 100 or mark < 0:
@@ -49,8 +51,11 @@ def mark_str_to_dict_revised(mark_str: str) -> Dict[str, int | float]:
     marks = mark_str.split(",")
     for mark in marks:
         key , value = mark.split(":")
+        # Prevent from having whitespace in key and value
+        value = value.strip()
+        key = key.strip()
         value = float(value) if "." in value else int(value)
-        mark_dict[key.strip()] = fix_invalid_value(value)
+        mark_dict[key] = fix_invalid_value(value)
     return mark_dict
 
 
@@ -84,13 +89,21 @@ def summarize_marks(marks: Dict[str, Dict], split: str) -> dict:
     invalid_count = 0
     valid_count = 0
     for key in marks.keys():
-        mark = marks[key][split]
+        mark = marks[key].get(split)
+
+        # Skip student who don't have mark on assignment
+        if mark is None:
+            continue
+
         if mark != float("-inf"):
             valid_count += 1
             total_sum +=mark
         else:
             invalid_count += 1
-    average_mark = total_sum / valid_count
+    if valid_count == 0:
+        average_mark = 0
+    else:
+        average_mark = total_sum / valid_count
     average_mark = int(average_mark) if isinstance(average_mark, float) and average_mark.is_integer() else average_mark
     return {"average_mark": average_mark,
     "invalid_count": invalid_count,
