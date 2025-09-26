@@ -79,14 +79,14 @@ def load_word_freq(file_path: str) -> dict:
     Args:
         file_path: The file path to load the vocabulary from.
     Returns:
-        This function does not return any value; it loads the vocabulary from file path.
+        dict: This function return list of word_freq.
     """
-    word_list = dict()
+    word_freq = dict()
     with open(file_path, "r") as f:
         for line in f.readlines():
-            element = line.strip("\n").split(" ")
-            word_list[element[0]] = int(element[1])
-    return word_list
+            element = line.strip().split()
+            word_freq[element[0]] = int(element[1])
+    return word_freq
 
 
 def load_word2idx(file_path: str):
@@ -97,14 +97,14 @@ def load_word2idx(file_path: str):
         file_path: The file path to load the vocabulary from.
 
     Returns:
-        This function does not return any value; it loads the vocabulary from file path.
+        dict: This function return list of word2idx.
     """
-    word_list = dict()
+    word2idx = dict()
     with open(file_path, "r") as f:
         for line in f.readlines():
-            element = line.split(" ")
-            word_list[element[0]] = int(element[1])
-    return word_list
+            element = line.strip().split()
+            word2idx[element[0]] = int(element[1])
+    return word2idx
 
 
 def load_idx2word(file_path: str):
@@ -115,14 +115,14 @@ def load_idx2word(file_path: str):
         file_path: The file path to load the vocabulary from.
 
     Returns:
-        This function does not return any value; it loads the vocabulary from file path.
+        dict: This function return list of idx2word.
     """
-    word_list = dict()
+    idx2word = dict()
     with open(file_path, "r") as f:
         for line in f.readlines():
-            element = line.strip("\n").split(" ")
-            word_list[int(element[0])] = (element[1])
-    return word_list
+            element = line.strip().split()
+            idx2word[int(element[0])] = (element[1])
+    return idx2word
 
 
 if __name__ == "__main__":

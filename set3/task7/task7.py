@@ -2,25 +2,6 @@ import pandas as pd
 import json
 from typing import Dict
 
-def get_stopwords(stopwords_file: str) -> list[str]:
-    """
-    This function gets all the stop words from the file
-
-    Params:
-        1. stopwords_file: <str> the file name containing the stop words
-
-    Return:
-        stopwords: <list> a list of strings (the stop words)
-    """
-    stopwords = []
-
-    with open(stopwords_file, "r", encoding="utf8") as f:
-        for line in f:
-            word = line.strip().lower()
-            stopwords.append(word)
-
-    return stopwords
-
 
 def get_vocabs(text: str, stopwords: list) -> tuple[tuple[str], tuple[int]]:
     """
@@ -48,7 +29,7 @@ def get_vocabs(text: str, stopwords: list) -> tuple[tuple[str], tuple[int]]:
     for word in words:
         # SUBPROCESS: skip the word if word length < 2, word contains number or word is a stopword
         word_size = len(word)
-        if word_size < 2 or word in stopwords or check_word_has_number(word):
+        if word_size < 2 or word in stopwords or check_word_has_number(word) or not word.isalpha():
             continue
 
         # SUBPROCESS: add / update word (lowercase) into dictionary
@@ -81,28 +62,27 @@ def get_vocabs(text: str, stopwords: list) -> tuple[tuple[str], tuple[int]]:
     return result
 
 
-def get_words(text: str, delimeters: str) -> list:
+def get_words(text: str, delimiters: str) -> list:
     """
     This function extract a list of (lowercase) words from the input text
 
     Params:
         1. text: <str> the input text string
-        2. delimeters: <str> the symbols / characters that should be filtered from the word
+        2. delimiters: <str> the symbols / characters that should be filtered from the word
 
     Returns:
         words: <list> a list of lowercase words
     """
-    # PROCESS: iterate each character, form into a word and add to word list
     words = []
     word_buffer = ""
-
+    # iterate each character, form into a word and add to word list
     for char in text:
-        # SUBPROCESS: while buffer is empty, skip the character if it is a blank space or a delimeter
-        if len(word_buffer) == 0 and (char.isspace() or char in delimeters):
+        # while buffer is empty, skip the character if it is a blank space or a delimeter
+        if len(word_buffer) == 0 and (char.isspace() or char in delimiters):
             continue
 
-        # SUBPROCESS: add character to buffer and extract word to the list
-        if char not in delimeters and not char.isspace():
+        # add character to buffer and extract word to the list
+        if char not in delimiters and not char.isspace():
             word_buffer += char
         else:
             # SUBPROCESS: add character to buffer, extract word to the list and reset buffer
@@ -135,6 +115,50 @@ def check_word_has_number(word: str) -> bool:
 
     return False
 
+
+def load_idx2label(idx2label_filepath):
+    """
+    Load the file containing indexes and their labels.
+    Args:
+        idx2label_filepath (str):  path of the idx2label file.
+    Returns:
+        label_df (pandas.DataFrame): DataFrame mapping label ids to label names.
+    """
+    with open(idx2label_filepath) as f:
+        mapping_dict = json.load(f)
+    label_df = pd.DataFrame(mapping_dict.items(), columns=["label", "label_name"])
+    return label_df
+
+
+def get_stopwords(stopwords_file: str) -> list[str]:
+    """
+    This function gets all the stop words from the file
+
+    Params:
+        1. stopwords_file: <str> the file name containing the stop words
+
+    Return:
+        stopwords: <list> a list of strings (the stop words)
+    """
+    stopwords = []
+
+    with open(stopwords_file, "r", encoding="utf8") as f:
+        for line in f:
+            word = line.strip().lower()
+            stopwords.append(word)
+
+    return stopwords
+
+
+def get_corpus(corpus_filepath, label_df):
+    # Cast the datatype of label column in label dataframe to int same data type with corpus
+    label_df["label"] = label_df["label"].astype(int)
+    corpus_df = pd.read_csv(corpus_filepath)
+    # Merge corpus and label dataframe
+    joined_df = pd.merge(corpus_df, label_df, on="label", how="inner")
+    return joined_df
+
+
 class TextProcessor:
     """
     Text Processor class for processing word in corpus in each label.
@@ -146,6 +170,7 @@ class TextProcessor:
         stopwords (list): list of stop words.
         idx2label (pandas.DataFrame): DataFrame mapping label ids to label names.
     """
+
     def __init__(
             self,
             stopwords_filepath: str,
@@ -163,23 +188,10 @@ class TextProcessor:
         self.word_freq = {}
         self.word2idx = {}
         self.idx2word = {}
-        self.corpus_df = None
+        self.idx2label = load_idx2label(idx2label_filepath)
+        self.corpus = get_corpus(corpus_filepath, self.idx2label)
         self.stopwords = get_stopwords(stopwords_filepath)
-        self.idx2label = self.load_idx2label(idx2label_filepath)
-        self.add_file(corpus_filepath)
-
-    def load_idx2label(self, idx2label_filepath):
-        """
-        Load the file containing indexes and their labels.
-        Args:
-            idx2label_filepath (str):  path of the idx2label file.
-        Returns:
-            label_df (pandas.DataFrame): DataFrame mapping label ids to label names.
-        """
-        with open(idx2label_filepath) as f:
-            mapping_dict = json.load(f)
-        label_df = pd.DataFrame(mapping_dict.items(), columns=["label", "label_name"])
-        return label_df
+        self.add_freq_to_wordfreq(self.corpus["text"])
 
     def add_file(self, add_file_path: str) -> None:
         # YOUR CODES START HERE
@@ -191,29 +203,29 @@ class TextProcessor:
         Returns:
             This function does not return anything. It saves the vocabulary and word frequency by save method
         """
-        self.corpus_df = pd.read_csv(add_file_path)
-        self.idx2label["label"] = self.idx2label["label"].astype(int)
+        added_corpus = get_corpus(corpus_filepath=add_file_path, label_df=self.idx2label)
+        texts = added_corpus["text"]
+        self.add_freq_to_wordfreq(texts=texts)
 
-        corpus_table = self.corpus_df
-        label_table = self.idx2label
-        stopwords = self.stopwords
+    def add_freq_to_wordfreq(self, texts):
+        """
+        This function update the word frequency of TextProcessor when initiating instance or adding file
+        Args:
+            texts (Iterable[str]): A list or pandas Series of text documents to be processed.
 
-        # Join corpus dataframe and label dataframe with inner join on label
-        joined_table = pd.merge(corpus_table, label_table, on="label", how="inner")
-
-        texts = joined_table["text"]
-
+        Returns:
+            This function return nothing. It is used for updating word frequency.
+        """
         for text in texts:
-            vocabs = get_vocabs(text=text,stopwords=stopwords)
+            vocabs = get_vocabs(text=text, stopwords=self.stopwords)
             if not vocabs:
                 continue
 
             vocabs, freqs = vocabs
             # Update the value in the vocabulary dictionary
-            for vocab,freq in zip(vocabs, freqs):
+            for vocab, freq in zip(vocabs, freqs):
                 self.word_freq[vocab] = self.word_freq.get(vocab, 0) + freq
         self.save()
-
 
     def delete_file(self, delete_file_path) -> None:
         # YOUR CODES START HERE
@@ -225,12 +237,11 @@ class TextProcessor:
         Returns:
             This function does not return anything. It saves the vocabulary and word frequency by save method
         """
-        df = pd.read_csv(delete_file_path)
-        self.idx2label["label"] = self.idx2label["label"].astype(int)
-        df = pd.merge(df, self.idx2label, on="label", how="inner")
+        deleted_corpus = get_corpus(corpus_filepath=delete_file_path, label_df=self.idx2label)
+        texts = deleted_corpus["text"]
 
         # dict of delete word
-        for text in df["text"]:
+        for text in texts:
             vocabs = get_vocabs(text=text, stopwords=self.stopwords)
             if not vocabs:
                 continue
@@ -243,7 +254,6 @@ class TextProcessor:
                         self.word_freq[word] = new_freq
                     else:
                         self.word_freq.pop(word, None)
-
 
         self.save()
 
@@ -258,7 +268,7 @@ class TextProcessor:
         """
         # Load word frequency dict
         word_freq = {}
-        with open("word_freq.txt","r") as f:
+        with open("word_freq.txt", "r") as f:
             for line in f:
                 word, count = line.strip().split()
                 word_freq[word] = int(count)
@@ -285,10 +295,15 @@ class TextProcessor:
         Save the vocabulary and word frequency , word2idx, and idx2word to
         word_freq.txt, word2idx.txt, and idx2word.txt.
         This function does not return anything. It save the vocabulary and word frequency.
-        """
+        """   
         # YOUR CODES START HERE
-        def get_frequency(word):
-            return word[1]
+        # Clear all data in word2idx and idx2word for preventing duplicate with old data
+        self.word2idx.clear()
+        self.idx2word.clear()
+        
+        # This closure function to get key in the element of iterator for sorting
+        def get_frequency(element):
+            return element[1]
 
         word_sorted_by_freq = sorted(self.word_freq.items(), key=get_frequency, reverse=True)
         word_sorted_by_name = sorted(self.word_freq.keys())
@@ -312,6 +327,7 @@ class TextProcessor:
             # use join with generator expression
             f.write("".join(f"{index} {word}\n" for index, word in self.idx2word.items()))
 
+
 if __name__ == "__main__":
     tp = TextProcessor(
         stopwords_filepath="data/stop_words_english.txt",
@@ -319,3 +335,4 @@ if __name__ == "__main__":
         idx2label_filepath="data/idx2label.json",
     )
     print(len(tp.word_freq))
+    print(tp.corpus)

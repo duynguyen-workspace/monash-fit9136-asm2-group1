@@ -34,7 +34,7 @@ def updating_for_adding(
     if isinstance(added_files, str):
         added_files = [added_files]
     stopwords = get_stopwords(stopwords_path)
-    word_freq = load_word_freq(f"./{in_path}/word_freq.txt")
+    word_freq = load_word_freq(f"{in_path}/word_freq.txt")
     for element in added_files:
         with open(element, "r") as f:
             text = f.read()
@@ -51,9 +51,9 @@ def updating_for_adding(
     freqs_list = [word_freq[word] for word in words_list]
     word = tuple(words_list)
     freq = tuple(freqs_list)
-    save_word_freq(word, freq, f"./{out_path}/word_freq.txt")
-    save_word2idx(word, f"./{out_path}/word2idx.txt")
-    save_idx2word(word, f"./{out_path}/idx2word.txt")
+    save_word_freq(word, freq, f"{out_path}/word_freq.txt")
+    save_word2idx(word, f"{out_path}/word2idx.txt")
+    save_idx2word(word, f"{out_path}/idx2word.txt")
 
 
 def updating_for_deleting(
@@ -82,7 +82,7 @@ def updating_for_deleting(
     if isinstance(excluded_files, str):
         excluded_files = [excluded_files]
     stopwords = get_stopwords(stopwords_path)
-    word_freq = load_word_freq(file_path=f"./{in_path}/word_freq.txt")
+    word_freq = load_word_freq(file_path=f"{in_path}/word_freq.txt")
     for element in excluded_files:
         with open(element, "r") as f:
             text = f.read()
@@ -104,19 +104,19 @@ def updating_for_deleting(
     freqs_list = [word_freq[word] for word in words_list]
     word = tuple(words_list)
     freq = tuple(freqs_list)
-    save_word_freq(word, freq, f"./{out_path}/word_freq.txt")
-    save_word2idx(word, f"./{out_path}/word2idx.txt")
-    save_idx2word(word, f"./{out_path}/idx2word.txt")
+    save_word_freq(word, freq, f"{out_path}/word_freq.txt")
+    save_word2idx(word, f"{out_path}/word2idx.txt")
+    save_idx2word(word, f"{out_path}/idx2word.txt")
 
 if __name__ == '__main__':
-    added_files = [
+    add_files = [
         "./data/new_add0.txt",
         "./data/new_add1.txt"
     ]
 
     updating_for_adding(
         stopwords_path="./data/stop_words_english.txt",
-        added_files=added_files,
+        added_files=add_files,
         in_path="./data/old",
         out_path="./data/new"
     )

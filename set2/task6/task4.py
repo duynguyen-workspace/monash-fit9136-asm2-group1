@@ -1,5 +1,4 @@
 # copy your task4 code here
-# copy your task4 code here
 from typing import Tuple, List, Set, Optional
 import os
 
@@ -80,13 +79,13 @@ def get_vocabs(text: str, stopwords: List) -> Tuple[Tuple[str], Tuple[int]]:
 
     return result
 
-def get_words(text: str, delimeters: str) -> list:
+def get_words(text: str, delimiters: str) -> list:
     """
     This function extract a list of (lowercase) words from the input text
 
     Params:
         1. text: <str> the input text string
-        2. delimeters: <str> the symbols / characters that should be filtered from the word
+        2. delimiters: <str> the symbols / characters that should be filtered from the word
     
     Returns:
         words: <list> a list of lowercase words
@@ -97,11 +96,11 @@ def get_words(text: str, delimeters: str) -> list:
 
     for char in text:
         # SUBPROCESS: while buffer is empty, skip the character if it is a blank space or a delimeter
-        if len(word_buffer) == 0 and (char.isspace() or char in delimeters):
+        if len(word_buffer) == 0 and (char.isspace() or char in delimiters):
             continue
 
         # SUBPROCESS: add character to buffer and extract word to the list 
-        if char not in delimeters and not char.isspace():
+        if char not in delimiters and not char.isspace():
             word_buffer += char
         else:
             # SUBPROCESS: add character to buffer, extract word to the list and reset buffer
