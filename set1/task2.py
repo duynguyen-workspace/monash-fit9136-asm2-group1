@@ -85,7 +85,7 @@ def summarize_marks(marks: Dict[str, Dict], split: str) -> dict:
         dict: which contain average score, number of invalid marks,
         number of valid marks of input assignment.
     """
-    total_sum = 0
+    total_sum = 0.0
     invalid_count = 0
     valid_count = 0
     for key in marks.keys():
@@ -104,7 +104,6 @@ def summarize_marks(marks: Dict[str, Dict], split: str) -> dict:
         average_mark = 0
     else:
         average_mark = total_sum / valid_count
-    average_mark = int(average_mark) if isinstance(average_mark, float) and average_mark.is_integer() else average_mark
     return {"average_mark": average_mark,
     "invalid_count": invalid_count,
     "valid_count": valid_count}
@@ -136,7 +135,7 @@ def main(user_info, mark_unprocessed) -> None:
 
     # DEFAULT CONSTANTS
     MENU_DEFAULT_PROMPT = "Welcome to the Mark system v0.0!\nPlease Login:\n1.Exit\n2.Login\nYour choice (number only): "
-    
+
     MENU_DEFAULT_OPTIONS = ["1", "2"]
 
     MENU_LOGIN_OPTIONS = ["1", "2", "3", "4"]
@@ -147,7 +146,7 @@ def main(user_info, mark_unprocessed) -> None:
 
     # MAIN MENU starts
     while user_choice != "1":
-        
+
         # Get user's input
         if not login_user:
             user_choice = get_menu_choice(MENU_DEFAULT_PROMPT, MENU_DEFAULT_OPTIONS)
@@ -160,7 +159,7 @@ def main(user_info, mark_unprocessed) -> None:
         # @Action 1: Exit Program
         if user_choice == "1":
             exit()
-        
+
         # @Action 2: Login / Relogin
         if user_choice == "2":
             if not login_user:
@@ -168,13 +167,13 @@ def main(user_info, mark_unprocessed) -> None:
             else:
                 login_user = None # logout -> reset login state
                 print("You have logged off successfully!")
-                
+
         # --- ONLY AVAILABLE FOR LOGIN USER ---
         if login_user:
             # @Action 3: Show mark records
             if user_choice == "3":
                 show_mark_records(marks_processed)
-            
+
             # @Action 4: Show summarization
             if user_choice == "4":
                 show_summarization(login_user, marks_processed)
@@ -207,12 +206,12 @@ def login(user_info: Dict[str, str]) -> Dict[str, str] | None:
                 'username': valid_username,
                 'password': valid_password
             }
-    
+
     print("==================================") # seperator
     print("Incorrect username or password!")
-    
+
     return None
-    
+
 
 def exit() -> None:
     """
@@ -259,19 +258,33 @@ def show_summarization(login_user: Dict[str, str], marks: Dict[str, Dict[str, in
         None: the output is print out to the console
     """
     # Get available marks and compute the menu prompt
-    available_marks = marks.get('username').keys()
-    asm_names = ", ".join(f"'{name}'" for name in available_marks)
+    assignments = set()
+    for student in marks.values():
+        assignments.update(student.keys())
 
-    MENU_SUMMARY_PROMPT = f"Available Assignments: {{{asm_names}}}\nThe Assignment you want to check (e.g., A1): " # escape characters {{ }}
-    MENU_SUMMARY_OPTIONS = list(available_marks)
+    if not assignments:
+        return
+
+    assignments = sorted(assignments,reverse=True)
+    assignments_count = set(assignments)
+    MENU_SUMMARY_PROMPT = (
+        f"Available Assignments: {assignments}\n"
+        "The Assignment you want to check (e.g., A1): "
+    )
+    MENU_SUMMARY_OPTIONS = list(assignments)
 
     chosen_assignment = get_menu_choice(MENU_SUMMARY_PROMPT, MENU_SUMMARY_OPTIONS)
     marks_summary = summarize_marks(marks, chosen_assignment)
 
+    print("==================================")
+    print(f"Results For {chosen_assignment}:")
+
+
+
     print("==================================") # seperator
-    
+
     for label, value in marks_summary.items():
-        print(f"{label}: {value}")    
+        print(f"{label}: {value}")
 
 # UTILITY FUNCTIONS --------------------------------------
 def get_menu_choice(prompt: str, options: list) -> str:
@@ -285,25 +298,25 @@ def get_menu_choice(prompt: str, options: list) -> str:
     Return
         user_input: <str> the valid user's choice 
     """
-    is_input_valid = False 
+    is_input_valid = False
 
     while not is_input_valid:
         print("==================================") # seperator
-        
+
         print(prompt, end="")
         user_input = input("")
-        
+
         if user_input in options:
             is_input_valid = True
-    
+
     return user_input
-        
+
 
 # WARNING!!! *DO NOT* REMOVE THIS LINE
 # THIS ENSURES THAT THE CODE BELOW ONLY RUNS WHEN YOU HIT THE GREEN `Run` BUTTON, AND NOT THE BLUE `Test` BUTTON
 if __name__ == "__main__":
     user_info = {
-        "Jueqing": "Jueqing123"
+        "trang": "trang123"
     }
     mark_unprocessed = {
         "Jueqing": "A1: 99, A2: 200, A3: -100",
