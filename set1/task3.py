@@ -2,147 +2,156 @@ from typing import Tuple, List
 
 def get_vocabs_simple(text: str) -> Tuple[Tuple[str], Tuple[int]]:
     """ (Simple Version)
-    This function slits the string into words and count number of time each word appears
+    This function splits the text into words and count the number of time each word appears
 
     Params:
         1. text: <str> the unformatted text string
     
     Returns:
-        result: <tuple> A tuple that contains 2 tuples
+        vocabs: <Tuple[Tuple[str], Tuple[int]]> A tuple that contains 2 subtuples
         - the_word_list: list of words in the text string
         - the_count_list: number of iteration that each word appears
+
+    Requirements:
+        1. The given string already separates each word by a space
+        2. Only unique words are recorded, no punctuation allowed
+        3. The word list is sorted followed by the count list
+
+    Assumptions:
+        - "Simple strings" have words and punctuation marks concatenated using a single space
     """
-    if text is None or len(text) == 0:
+    if not text:
         return ()
-
-    # PROCESS: seperate the words by the blank space in between
-    words = text.split()
-
-    # PROCESS: Check if word is (or contain) a punctuation and add it to dictionary for counting
-    words_dict = {}
-
-    for word in words:
-        if len(word) == 0:
-            continue
-        
-        # Add word to dictionary / update word count (if it is not a punctuation)
-        if word != "," or word != ".":
-            word = word.strip(",.")
-
-            if word not in words_dict.keys():
-                words_dict[word] = 1
-            else:
-                words_dict[word] += 1
     
-    # --- MAIN OUTPUT: return the result tuple (if the dictionary is not empty)
-    if len(words_dict) == 0:
-        return ()
-
-    # SUBPROCESS - return all the unique words and the word count in sorted order
-    the_word_lst = list(words_dict.keys())
-    the_word_lst.sort() # sorted all the words
-    
-    if the_word_lst[0] is None: # remove the first item (if it is an empty string '')
-        the_word_lst.pop(0) 
-
-    the_count_lst = []
-    for word in the_word_lst:
-        the_count_lst.append(words_dict[word])
-
-    # Type casting from List -> Tuple
-    the_word_lst = tuple(the_word_lst)
-    the_count_lst = tuple(the_count_lst)
-    result = (the_word_lst, the_count_lst)
-
-    return result
-
-def get_vocabs(text: str) -> Tuple[Tuple[str], Tuple[int]]:
-    """ (Complex Version)
-    This function slits the string into words and count number of time each word appears
-    
-    Params:
-        1. text: <str> the unformatted text string
-    
-    Returns:
-        result: <tuple> A tuple that contains 2 tuples
-        - the_word_list: list of words in the text string
-        - the_count_list: number of iteration that each word appears
-    """
-    if text is None or len(text) == 0:
-        return ()
-
     # CONSTANTS
     PUNCTUATIONS = "!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~"
 
-    # PROCESS: process the word list and generate a word dictionary containing its count
-    words = get_words(text, PUNCTUATIONS)
-    words_dict = {} 
+    # Get the word list: seperate the words + punctuations by a single space
+    words = text.split()
 
+    # Filter out all the punctuations, add words to the dictionary and count their frequencies
+    words_dict = {}
     for word in words:
-        # SUBPROCESS: add / update word (lowercase) into dictionary
+        word = word.strip(PUNCTUATIONS) # filter punctuations
+
+        if not word or word.isspace():
+            continue
+        
+        if word not in words_dict.keys(): # # add / update word in dictionary
+            words_dict[word] = 1
+        else:
+            words_dict[word] += 1
+    
+    # --- MAIN OUTPUT: return the result tuple (if the dictionary is not empty)
+    if not words_dict:
+        return ()
+
+    # sorted all the words in ascending order
+    the_word_lst = list(words_dict.keys())
+    the_word_lst.sort() 
+
+    # return two tuples of unique words and the word's count in sorted order
+    the_count_lst = [words_dict.get(word) for word in the_word_lst]
+    the_word_lst = tuple(the_word_lst)
+    the_count_lst = tuple(the_count_lst)
+    
+    vocabs = (the_word_lst, the_count_lst)
+
+    return vocabs
+
+def get_vocabs(text: str) -> Tuple[Tuple[str], Tuple[int]]:
+    """ (Complex Version)
+    This function splits the text into words and count the number of time each word appears
+    
+    Params:
+        1. text: <str> the unformatted text string
+
+    Returns:
+        vocabs: <Tuple[Tuple[str], Tuple[int]]> A tuple that contains 2 subtuples
+        - the_word_list: list of words in the text string
+        - the_count_list: number of iteration that each word appears
+
+    Requirements:
+        (Old)
+        1. Only unique words are recorded, no punctuation allowed 
+        2. The word list is sorted followed by the count list
+        (New)
+        3. All words are converted to lowercase.
+        4. If punctuation directly follow a word, they are cleaned
+        5. Contractions will always follow the correct English syntax
+    """
+    if not text:
+        return ()
+
+    # Process the word list and generate a word dictionary containing its count
+    words = get_words(text)
+    
+    words_dict = {} 
+    for word in words:
         formatted_word = word.lower()
+
+        # Add / Update word (lowercase) into dictionary
         if formatted_word not in words_dict.keys():
             words_dict[formatted_word] = 1
         else:
             words_dict[formatted_word] += 1
     
     # --- MAIN OUTPUT: return the result tuple (if the dictionary is not empty)
-    if len(words_dict) == 0:
+    if not words_dict:
         return ()
 
-    # SUBPROCESS - return all the unique words and the word count in sorted order
+    # sorted all the words in ascending order
     the_word_lst = list(words_dict.keys())
-    the_word_lst.sort() # sorted all the words
+    the_word_lst.sort() 
 
-    if the_word_lst[0] is None: # remove the first item (which is an empty string '')
-        the_word_lst.pop(0) 
-
-    the_count_lst = []
-    for word in the_word_lst:
-        the_count_lst.append(words_dict[word])
-
-    # Type casting from List -> Tuple
+    # return two tuples of unique words and the word's count in sorted order
+    the_count_lst = [words_dict.get(word) for word in the_word_lst]
     the_word_lst = tuple(the_word_lst)
     the_count_lst = tuple(the_count_lst)
-    result = (the_word_lst, the_count_lst)
+    
+    vocabs = (the_word_lst, the_count_lst)
 
-    return result
+    return vocabs
 
-def get_words(text: str, delimeters: str) -> list:
+def get_words(text: str) -> List[str]:
     """
-    This function extract a list of (lowercase) words from the input text
+    This function process the input text and extract a list of (cleaned) words
 
     Params:
         1. text: <str> the input text string
-        2. delimeters: <str> the symbols / characters that should be filtered from the word
-    
+
     Returns:
-        words: <list> a list of lowercase words
+        words: <List[str]> a list of lowercase words
+
+    Requirements:
+        1. all words are in lowercase
+        2. words have been cleaned (contains no punctuation in between)
 
     """
+    # CONSTANTS
+    PUNCTUATIONS = "!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~"
 
-    # PROCESS: iterate each character, form into a word and add to word list
+    # iterate each character, compute them into a proper word and insert accordingly to word list
     words = []
+    
     word_buffer = ""
-
     for char in text:
-        # SUBPROCESS: while buffer is empty, skip the character if it is a blank space or a delimeter
-        if len(word_buffer) == 0 and (char.isspace() or char in delimeters):
+        # While buffer is empty -> skip the character if it is a blank space or a punctuation
+        if not word_buffer and (char.isspace() or char in PUNCTUATIONS):
             continue
 
-        # SUBPROCESS: add character to buffer, extract word to the list and reset buffer
-        if char not in delimeters and not char.isspace():
+        # Add character to buffer, extract (lowercase) word to list, and reset buffer
+        if char not in PUNCTUATIONS and not char.isspace():
             word_buffer += char
         else:
             word = word_buffer.lower()
             words.append(word)
             word_buffer = "" 
     
-    # SUBPROCESS: Add the remaining buffer (last word) to list 
+    # Add the remaining buffer (last word) to list 
     if word_buffer:
         words.append(word_buffer.lower())
 
-    # print(words)
     return words
 
 # WARNING!!! *DO NOT* REMOVE THIS LINE
