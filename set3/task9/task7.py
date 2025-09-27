@@ -2,6 +2,11 @@ import pandas as pd
 import json
 from typing import Dict
 
+# Filepath of 3 text files
+WORD_FREQ_FILEPATH = "word_freq.txt"
+WORD2IDX_FILEPATH = "word2idx.txt"
+IDX2WORD_FILEPATH = "idx2word.txt"
+
 class TextProcessor:
     """
     Text Processor class for processing word in corpus in each label.
@@ -124,29 +129,36 @@ class TextProcessor:
         Returns:
         This function does not return anything. It load the vocabulary and word frequency.
         """
+        self.word_freq = self._load_word_freq(WORD_FREQ_FILEPATH)
+        self.word2idx = self._load_word2idx(WORD2IDX_FILEPATH)
+        self.idx2word = self._load_idx2word(IDX2WORD_FILEPATH)
+
+    def _load_word_freq(self, filepath) -> Dict[str, int]:
         # Load word frequency dict
         word_freq = {}
-        with open("word_freq.txt", "r") as f:
+        with open(filepath, "r") as f:
             for line in f:
                 word, count = line.strip().split()
                 word_freq[word] = int(count)
-        self.word_freq = word_freq
+        return word_freq
 
+    def _load_word2idx(self, filepath) -> Dict[str, int]:
         # Load word2idx dict
         word2idx = {}
-        with open("word2idx.txt", "r") as f:
+        with open(filepath, "r") as f:
             for line in f:
                 word, index = line.strip().split()
                 word2idx[word] = int(index)
-        self.word2idx = word2idx
+        return word2idx
 
+    def _load_idx2word(self, filepath) -> Dict[int, str]:
         # Load idx2word dict
         idx2word = {}
-        with open("idx2word.txt", "r") as f:
+        with open(filepath, "r") as f:
             for line in f:
                 index, word = line.strip().split()
                 idx2word[int(index)] = word
-        self.idx2word = idx2word
+        return idx2word
 
     def save(self) -> None:
         """
@@ -159,25 +171,33 @@ class TextProcessor:
         self.word2idx.clear()
         self.idx2word.clear()
 
-        word_sorted_by_freq = self._get_word_sorted_by_freq()
         word_sorted_by_name = sorted(self.word_freq.keys())
 
         for index, word in enumerate(word_sorted_by_name):
             self.word2idx[word] = index
             self.idx2word[index] = word
 
+        # Save 3 files
+        self._save_word_freq(WORD_FREQ_FILEPATH)
+        self._save_word2idx(WORD2IDX_FILEPATH)
+        self._save_idx2word(IDX2WORD_FILEPATH)
+
+    def _save_word_freq(self, filepath) -> None:
+        word_sorted_by_freq = self._get_word_sorted_by_freq()
         # Save word frequency
-        with open("word_freq.txt", 'w') as f:
+        with open(filepath, 'w') as f:
             # use join with generator expression
             f.write("".join((f"{word} {freq}\n" for word, freq in word_sorted_by_freq)))
 
+    def _save_word2idx(self, filepath) -> None:
         # Save word2idx
-        with open("word2idx.txt", 'w') as f:
+        with open(filepath, 'w') as f:
             # use join with generator expression
             f.write("".join(f"{word} {index}\n" for word, index in self.word2idx.items()))
 
+    def _save_idx2word(self, filepath) -> None:
         # Save idx2word
-        with open("idx2word.txt", 'w') as f:
+        with open(filepath, 'w') as f:
             # use join with generator expression
             f.write("".join(f"{index} {word}\n" for index, word in self.idx2word.items()))
 
@@ -296,7 +316,7 @@ class TextProcessor:
 
         return False
 
-    def _load_idx2label(self, idx2label_filepath):
+    def _load_idx2label(self, filepath):
         """
         Load the file containing indexes and their labels.
         Args:
@@ -304,7 +324,7 @@ class TextProcessor:
         Returns:
             label_df (pandas.DataFrame): DataFrame mapping label ids to label names.
         """
-        with open(idx2label_filepath) as f:
+        with open(filepath) as f:
             mapping_dict = json.load(f)
         label_df = pd.DataFrame(mapping_dict.items(), columns=["label", "label_name"])
         return label_df
