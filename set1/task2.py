@@ -108,6 +108,7 @@ def summarize_marks(marks: Dict[str, Dict], split: str) -> dict:
     return {"average_mark": average_mark,
     "invalid_count": invalid_count,
     "valid_count": valid_count}
+
 #####################################################
 
 # ------------------ MAIN FUNCTION ------------------
