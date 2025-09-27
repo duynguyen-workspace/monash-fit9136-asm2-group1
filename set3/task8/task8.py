@@ -54,24 +54,6 @@ class Role:
         return self.name
 
 
-def check_existing_path(prompt: str) -> str:
-    """
-    Check if path exists.
-    Args:
-        prompt (str): prompt string.
-
-    Returns:
-        file_path (str): path to file.
-    """
-    is_valid_path = False
-
-    while not is_valid_path:
-        filepath = input(prompt).strip()
-        #check file path valid
-        if os.path.exists(filepath):
-            return filepath
-    return "No valid path found"
-
 class RoleBasedVocabSys:
     """
     RoleBasedVocabSys class to define instance of role-based vocabulary system.
@@ -103,7 +85,6 @@ class RoleBasedVocabSys:
         self.text_processor = TextProcessor(stopwords_filepath,
                                             corpus_filepath,
                                             idx2label_filepath)
-        self.user_choice = None
 
     def start(self):
         # YOUR CODES START HERE
@@ -113,10 +94,80 @@ class RoleBasedVocabSys:
             This function return nothing. It will start role based vocabulary system and exit
             when user choose option exit.
         """
-        while self.user_choice != "1":
+        user_choice = None
+        while user_choice != "1":
             menu = self.generate_menu()
             print(menu)
-            self.get_user_choice()
+            user_choice = self.get_user_choice()
+
+            # Login action
+            if self.current_user is None:
+                if user_choice == "1":
+                    print("Exited")
+                    continue
+                elif user_choice == "2":
+                    self.login()
+                continue
+
+            access = self.current_user.get_access()
+
+            word_list = self.text_processor.get_word_sorted_by_freq()
+
+            # Action when user log in for both reader and admin
+            if user_choice == "1":
+                print("Exited")
+                continue
+            elif user_choice == "2":
+                self.current_user = None
+                print("Logged out.")
+                continue
+            # Print top 10 frequency words
+            elif user_choice == "3":
+                print("====================")
+                for wrd, frq in word_list[:10]:
+                    print(f"{wrd} {frq}")
+                print("====================")
+                continue
+            # Print bottom 10 frequency words
+            elif user_choice == "4":
+                print("====================")
+                for wrd, frq in word_list[-10:]:
+                    print(f"{wrd} {frq}")
+                print("====================")
+                continue
+            # Actions of modifying vocabulary only for admin
+            if access == "admin":
+                # Add vocabulary
+                if user_choice == "5":
+                    add_file_path = self._check_existing_path("Enter the file path: ")
+                    self.text_processor.add_file(add_file_path)
+                    print("done.")
+                    continue
+                # Delete vocabulary
+                elif user_choice == "6":
+                    delete_file_path = self._check_existing_path("Enter the file path: ")
+                    self.text_processor.delete_file(delete_file_path)
+                    print("done.")
+                    continue
+
+    def _check_existing_path(self,prompt: str) -> str:
+        """
+        Check if path exists.
+        Args:
+            prompt (str): prompt string.
+
+        Returns:
+            file_path (str): path to file.
+        """
+
+        is_valid_path = False
+        filepath = ""
+        while not is_valid_path:
+            filepath = input(prompt).strip()
+            if os.path.isfile(filepath):
+                is_valid_path = True
+
+        return filepath
 
     def generate_menu(self) -> str:
         # YOUR CODES START HERE
@@ -184,56 +235,10 @@ class RoleBasedVocabSys:
         """
         check_user_valid = False
         while not check_user_valid:
-            self.user_choice = input("Enter your choice: ").strip()
-            check_user_valid = self.verify_user_choice(self.user_choice)
+            user_choice = input("Enter your choice: ").strip()
+            check_user_valid = self.verify_user_choice(user_choice)
+        return user_choice
 
-        if self.current_user is None:
-            if self.user_choice == "1":
-                print("Exited")
-                return
-            elif self.user_choice == "2":
-                self.login()
-            return
-
-        access = self.current_user.get_access()
-
-        word_list = self.text_processor.get_word_sorted_by_freq()
-
-        if self.user_choice == "1":
-            print("Exited")
-            return
-        elif self.user_choice == "2":
-            self.current_user = None
-            print("Logged out.")
-            return
-        # Print top 10 frequency words
-        elif self.user_choice == "3":
-            print("====================")
-            for wrd, frq in word_list[:10]:
-                print(f"{wrd} {frq}")
-            print("====================")
-            return
-        # Print bottom 10 frequency words
-        elif self.user_choice == "4":
-            print("====================")
-            for wrd, frq in word_list[-10:]:
-                print(f"{wrd} {frq}")
-            print("====================")
-            return
-
-        if access == "admin":
-            # Add vocabulary
-            if self.user_choice == "5":
-                add_file_path = check_existing_path("Enter the file path: ")
-                self.text_processor.add_file(add_file_path)
-                print("done.")
-                return
-            # Delete vocabulary
-            elif self.user_choice == "6":
-                delete_file_path = check_existing_path("Enter the file path: ")
-                self.text_processor.delete_file(delete_file_path)
-                print("done.")
-                return
 
     def login(self):
         """
@@ -242,7 +247,7 @@ class RoleBasedVocabSys:
             This function return nothing.
         """
         username_in = input("Please key your account name: ").strip()
-        password = input("Please key your account password: ").strip()
+        password = input("Please key your password: ").strip()
 
         uname = username_in.lower()
         matched_key = None

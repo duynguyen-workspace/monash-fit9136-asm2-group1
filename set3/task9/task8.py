@@ -1,38 +1,68 @@
-# Copy your task 8 here (if required)
 from typing import Optional
 import os
 from task7 import TextProcessor
 
-WELCOME_MESSAGE = "Welcome to the Mark system v0.0!"
 
 
 class Role:
+    """
+    Role class to define an user when login.
+
+    Instance Variables:
+        user_name(str): user name of user.
+        access (str): access level of user.
+        name (str): full name of user.
+    """
     def __init__(self, user_name: str, access: str, name: str):
         # YOUR CODES START HERE
-        """Role class store and return the user's user_name
-        display name, and acess level"""
+        """
+        Constructor a new user with role
+        Args:
+            user_name (str): value when init user name of user.
+            access (str): value when init access level of user.
+            name (str): value when init name of user.
+        """
         self.user_name = user_name
         self.access = access
         self.name = name
 
     def get_user_name(self):
         # YOUR CODES START HERE
-        """This function return user name"""
+        """
+        This function return user name
+        Returns:
+            user_name (str): user name of instance.
+        """
         return self.user_name
 
     def get_access(self):
         # YOUR CODES START HERE
-        """This function return access"""
+        """
+        This function return access
+        Returns:
+            access (str): instance's level of access .
+        """
         return self.access
 
     def get_name(self):
         # YOUR CODES START HERE
-        """This function return name"""
+        """
+        This function return name
+        Returns:
+            name (str): full name of instance.
+        """
         return self.name
 
 
 class RoleBasedVocabSys:
-
+    """
+    RoleBasedVocabSys class to define instance of role-based vocabulary system.
+    Instance Variables:
+        users_info (dict): Dictionary of collection of users
+        current_user (Role): current user log in
+        text_processor (TextProcessor): Text processor
+        exit (boolean): Check is system exit or not.
+    """
     def __init__(
             self,
             users_info,
@@ -40,44 +70,134 @@ class RoleBasedVocabSys:
             corpus_filepath,
             idx2label_filepath
     ):
-        """Define user"""
         # YOUR CODES START HERE
         # replace with correct initialization
+        """
+        Constructor a Role based vocabulary system
+        Args:
+            users_info: Dictionary of collection of users.
+            stopwords_filepath: Path of stopwords file.
+            corpus_filepath: Path of corpus file.
+            idx2label_filepath: Path of idx2label file.
+        """
         self.users_info = users_info
         self.current_user = None
         self.text_processor = TextProcessor(stopwords_filepath,
                                             corpus_filepath,
                                             idx2label_filepath)
-        self.exit = False
 
     def start(self):
         # YOUR CODES START HERE
-        while not self.exit:
+        """
+        This function start role based vocabulary system.
+        Returns:
+            This function return nothing. It will start role based vocabulary system and exit
+            when user choose option exit.
+        """
+        user_choice = None
+        while user_choice != "1":
             menu = self.generate_menu()
             print(menu)
-            self.get_user_choice()
+            user_choice = self.get_user_choice()
+
+            # Login action
+            if self.current_user is None:
+                if user_choice == "1":
+                    print("Exited")
+                    continue
+                elif user_choice == "2":
+                    self.login()
+                continue
+
+            access = self.current_user.get_access()
+
+            word_list = self.text_processor.get_word_sorted_by_freq()
+
+            # Action when user log in for both reader and admin
+            if user_choice == "1":
+                print("Exited")
+                continue
+            elif user_choice == "2":
+                self.current_user = None
+                print("Logged out.")
+                continue
+            # Print top 10 frequency words
+            elif user_choice == "3":
+                print("====================")
+                for wrd, frq in word_list[:10]:
+                    print(f"{wrd} {frq}")
+                print("====================")
+                continue
+            # Print bottom 10 frequency words
+            elif user_choice == "4":
+                print("====================")
+                for wrd, frq in word_list[-10:]:
+                    print(f"{wrd} {frq}")
+                print("====================")
+                continue
+            # Actions of modifying vocabulary only for admin
+            if access == "admin":
+                # Add vocabulary
+                if user_choice == "5":
+                    add_file_path = self._check_existing_path("Enter the file path: ")
+                    self.text_processor.add_file(add_file_path)
+                    print("done.")
+                    continue
+                # Delete vocabulary
+                elif user_choice == "6":
+                    delete_file_path = self._check_existing_path("Enter the file path: ")
+                    self.text_processor.delete_file(delete_file_path)
+                    print("done.")
+                    continue
+
+    def _check_existing_path(self,prompt: str) -> str:
+        """
+        Check if path exists.
+        Args:
+            prompt (str): prompt string.
+
+        Returns:
+            file_path (str): path to file.
+        """
+
+        is_valid_path = False
+        filepath = ""
+        while not is_valid_path:
+            filepath = input(prompt).strip()
+            if os.path.isfile(filepath):
+                is_valid_path = True
+
+        return filepath
 
     def generate_menu(self) -> str:
         # YOUR CODES START HERE
-        """This function generate_menu"""
+        """
+        This function generate_menu which based on user role
+        Returns:
+            str: The CLI of system in terminal based on user's role.
+        """
         if self.current_user is None:
             return ("Welcome to the Mark system v0.0!\n"
                     "Please Login:\n"
                     "1.Exit\n"
                     "2.Login\n")
+
         if self.current_user.get_access() == "reader":
             return (
+                f"Welcome {self.current_user.get_name()}\n"
                 "Please choose one option below:\n"
                 "1.Exit\n"
-                "2.Logout / Re-Login\n"
+                "2.Logout/Re-Login\n"
                 "3.Show top 10 frequency vocabularies\n"
                 "4.Show last 10 frequency vocabularies"
             )
+
         if self.current_user.get_access() == "admin":
             return (
+                f"Welcome {self.current_user.get_name()}\n"
                 "Please choose one option below:\n"
                 "1.Exit\n"
-                "2.Logout / Re-Login\n"
+                "2.Logout/Re-Login\n"
                 "3.Show top 10 frequency vocabularies\n"
                 "4.Show last 10 frequency vocabularies\n"
                 "5.Updating Vocabulary for adding\n"
@@ -86,86 +206,55 @@ class RoleBasedVocabSys:
 
     def verify_user_choice(self, user_choice) -> bool:
         # YOUR CODES START HERE
+        """
+        This function verify_user_choice which based on user role.
+        Args:
+            user_choice str: user choice from 1 to 6 and verified by user's role
+
+        Returns:
+            bool: True if user choice is valid, False otherwise.
+        """
+        # List of choice
         choices = ["1", "2", "3", "4", "5", "6"]
         if self.current_user is None:
             return user_choice in choices[:2]
+        # Verify for reader
         elif self.current_user.get_access() == "reader":
-            return user_choice in choices[:5]
+            return user_choice in choices[:4]
+        # Verify for admin
         elif self.current_user.get_access() == "admin":
             return user_choice in choices
         else:
             return False
 
     def get_user_choice(self):
-        """Read a single valid menu choice and dispatch the action based on state/role."""
-
-        while True:
+        """
+        Read a single valid menu choice and dispatch the action based on state/role.
+        Returns:
+            This fucntion return nothing. This return is used for exiting the function
+        """
+        check_user_valid = False
+        while not check_user_valid:
             user_choice = input("Enter your choice: ").strip()
-            if self.verify_user_choice(user_choice):
-                break
-            print("Invalid choice. Please try again.")
+            check_user_valid = self.verify_user_choice(user_choice)
+        return user_choice
 
-        if self.current_user is None:
-            if user_choice == "1":
-                print("Exited")
-                self.exit = True
-            elif user_choice == "2":
-                self.login()
-            return
-
-        access = self.current_user.get_access()
-
-        def get_frequency(word):
-            return word[1]
-
-        word_sorted_by_freq = sorted(self.text_processor
-                                     .word_freq.items(),
-                                     key=get_frequency,
-                                     reverse=True)
-
-        if user_choice == "1":
-            print("Exited")
-            self.exit = True
-            return
-        elif user_choice == "2":
-            self.current_user = None
-            print("Logged out.")
-            return
-        elif user_choice == "3":
-            # TODO: show vocab
-            print("Showing top 10 vocabulary")
-            print(word_sorted_by_freq[:10])
-            return
-        elif user_choice == "4":
-            # TODO: top 10 vocab
-            print("Showing bottom 10")
-            print(word_sorted_by_freq[-10:])
-            return
-
-        if access == "admin":
-            if user_choice == "5":
-                path = input("Path to add: ").strip()
-
-                self.text_processor.add_file(path)
-                print("Vocabulary updated (added).")
-
-                return
-            elif user_choice == "6":
-                path = input("Path to remove: ").strip()
-
-                self.text_processor.delete_file(path)
-                print("Vocabulary updated (removed).")
 
     def login(self):
+        """
+        This function allow user login their account when the system starts.
+        Returns:
+            This function return nothing.
+        """
         username_in = input("Please key your account name: ").strip()
-        password = input("Please key your account password: ").strip()
+        password = input("Please key your password: ").strip()
 
         uname = username_in.lower()
         matched_key = None
         user = None
-        for k, v in self.users_info.items():
-            if k.lower() == uname:
-                matched_key, user = k, v
+        for key, value in self.users_info.items():
+            if key.lower() == uname:
+                matched_key, user = key, value
                 break
 
         if not user:

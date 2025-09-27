@@ -1,10 +1,14 @@
+from set3.task7.task7 import IDX2WORD_FILEPATH
 from task4 import get_stopwords, get_vocabs
 from task5 import (
     load_word_freq, load_word2idx, load_idx2word,
     save_word_freq, save_word2idx, save_idx2word   
 )
 
-
+# 3 constant file paths
+WORD_FREQ_FILEPATH = "word_freq.txt"
+WORD2IDX_FILEPATH = "word2idx"
+IDX2WORD_FILEPATH = "idx2word.txt"
 
 def updating_for_adding(
         stopwords_path: str,
@@ -34,7 +38,7 @@ def updating_for_adding(
     if isinstance(added_files, str):
         added_files = [added_files]
     stopwords = get_stopwords(stopwords_path)
-    word_freq = load_word_freq(f"{in_path}/word_freq.txt")
+    word_freq = load_word_freq(f"{in_path}/{WORD_FREQ_FILEPATH}")
     for element in added_files:
         with open(element, "r") as f:
             text = f.read()
@@ -51,9 +55,9 @@ def updating_for_adding(
     freqs_list = [word_freq[word] for word in words_list]
     word = tuple(words_list)
     freq = tuple(freqs_list)
-    save_word_freq(word, freq, f"{out_path}/word_freq.txt")
-    save_word2idx(word, f"{out_path}/word2idx.txt")
-    save_idx2word(word, f"{out_path}/idx2word.txt")
+    save_word_freq(word, freq, f"{out_path}/{WORD_FREQ_FILEPATH}")
+    save_word2idx(word, f"{out_path}/{WORD2IDX_FILEPATH}")
+    save_idx2word(word, f"{out_path}/{IDX2WORD_FILEPATH}")
 
 
 def updating_for_deleting(
@@ -82,7 +86,7 @@ def updating_for_deleting(
     if isinstance(excluded_files, str):
         excluded_files = [excluded_files]
     stopwords = get_stopwords(stopwords_path)
-    word_freq = load_word_freq(file_path=f"{in_path}/word_freq.txt")
+    word_freq = load_word_freq(file_path=f"{in_path}/{WORD_FREQ_FILEPATH}")
     for element in excluded_files:
         with open(element, "r") as f:
             text = f.read()
@@ -104,9 +108,9 @@ def updating_for_deleting(
     freqs_list = [word_freq[word] for word in words_list]
     word = tuple(words_list)
     freq = tuple(freqs_list)
-    save_word_freq(word, freq, f"{out_path}/word_freq.txt")
-    save_word2idx(word, f"{out_path}/word2idx.txt")
-    save_idx2word(word, f"{out_path}/idx2word.txt")
+    save_word_freq(word, freq, f"{out_path}/{WORD_FREQ_FILEPATH}")
+    save_word2idx(word, f"{out_path}/{WORD2IDX_FILEPATH}")
+    save_idx2word(word, f"{out_path}/{IDX2WORD_FILEPATH}")
 
 if __name__ == '__main__':
     add_files = [

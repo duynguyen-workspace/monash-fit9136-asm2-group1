@@ -7,6 +7,10 @@ WORD_FREQ_FILEPATH = "word_freq.txt"
 WORD2IDX_FILEPATH = "word2idx.txt"
 IDX2WORD_FILEPATH = "idx2word.txt"
 
+# Python string punctuations
+PUNCTUATIONS = "!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~"
+
+
 class TextProcessor:
     """
     Text Processor class for processing word in corpus in each label.
@@ -32,6 +36,8 @@ class TextProcessor:
             stopwords_filepath: Path of the stop words file.
             corpus_filepath: Path of the corpus file.
             idx2label_filepath: Path of the idx2label file.
+        Returns:
+            None
         """
         self.word_freq = {}
         self.word2idx = {}
@@ -43,13 +49,13 @@ class TextProcessor:
 
     def _get_corpus(self, corpus_filepath: str, label_df: pd.DataFrame) -> pd.DataFrame:
         """
-        Merge the label dataframe and corpus dataframe return the corpus after joining
+        Merge the label dataframe and corpus dataframe return the corpus after joining.
         Args:
-            corpus_filepath (str):  path of the corpus file.
-            label_df (pandas.DataFrame): label data frame.
+            corpus_filepath (str):  Path of the corpus file.
+            label_df (pandas.DataFrame): Label data frame.
 
         Returns:
-            pandas.DataFrame: corpus dataframe after joining abd have label_name column.
+            pandas.DataFrame: Corpus dataframe after join, with a label_name column.
         """
         # Cast the datatype of label column in label dataframe to int same data type with corpus
         label_df["label"] = label_df["label"].astype(int)
@@ -63,10 +69,10 @@ class TextProcessor:
         """
         Add the word from a file to vocabulary and update the keys and word frequency.
         Args:
-            add_file_path: str: The path of the file containing the added words.
+            add_file_path (str): The path of the file containing the added words.
 
         Returns:
-            This function does not return anything. It saves the vocabulary and word frequency by save method
+            This function does not return anything. It saves the vocabulary and word frequency by save method.
         """
         added_corpus = self._get_corpus(corpus_filepath=add_file_path, label_df=self.idx2label)
         texts = added_corpus["text"]
@@ -74,7 +80,7 @@ class TextProcessor:
 
     def _add_freq_to_wordfreq(self, texts):
         """
-        This function update the word frequency of TextProcessor when initiating instance or adding file
+        This function update the word frequency of TextProcessor when initiating instance or adding file.
         Args:
             texts (Iterable[str]): A list or pandas Series of text documents to be processed.
 
@@ -82,7 +88,7 @@ class TextProcessor:
             This function return nothing. It is used for updating word frequency.
         """
         for text in texts:
-            vocabs = self._get_word_freq(text=text, stopwords=self.stopwords)
+            vocabs = self.get_vocabs(text=text, stopwords=self.stopwords)
             if not vocabs:
                 continue
 
@@ -99,20 +105,20 @@ class TextProcessor:
             delete_file_path: The path of the file containing the deleted words.
 
         Returns:
-            This function does not return anything. It saves the vocabulary and word frequency by save method
+            This function does not return anything. It saves the vocabulary and word frequency by save method.
         """
         deleted_corpus = self._get_corpus(corpus_filepath=delete_file_path, label_df=self.idx2label)
         texts = deleted_corpus["text"]
 
         # dict of delete word
         for text in texts:
-            vocabs = self._get_word_freq(text=text, stopwords=self.stopwords)
+            vocabs = self.get_vocabs(text=text, stopwords=self.stopwords)
             if not vocabs:
                 continue
             for word, freq in vocabs.items():
                 if word in self.word_freq:
                     new_freq = self.word_freq[word] - freq
-                    # if the frequency minus to 0 remove the word from dictionary
+                    # If the frequency minus to 0 remove the word from dictionary
                     if new_freq > 0:
                         self.word_freq[word] = new_freq
                     else:
@@ -127,13 +133,21 @@ class TextProcessor:
         and update value in word2idx, word_freq, idx2word
         of the instance.
         Returns:
-        This function does not return anything. It load the vocabulary and word frequency.
+            This function does not return anything. It loads the vocabulary and word frequency.
         """
         self.word_freq = self._load_word_freq(WORD_FREQ_FILEPATH)
         self.word2idx = self._load_word2idx(WORD2IDX_FILEPATH)
         self.idx2word = self._load_idx2word(IDX2WORD_FILEPATH)
 
     def _load_word_freq(self, filepath) -> Dict[str, int]:
+        """
+        Load the file word_freq.txt.
+        Args:
+            filepath: the path of the file containing the word frequency.
+
+        Returns:
+            Dict[str, int]: Dict of word frequency.
+        """
         # Load word frequency dict
         word_freq = {}
         with open(filepath, "r") as f:
@@ -143,6 +157,14 @@ class TextProcessor:
         return word_freq
 
     def _load_word2idx(self, filepath) -> Dict[str, int]:
+        """
+        Load the file word2idx.txt.
+        Args:
+            filepath: The path of the file containing the word and index.
+
+        Returns:
+            Dict[str, int]: Dict of words and its index.
+        """
         # Load word2idx dict
         word2idx = {}
         with open(filepath, "r") as f:
@@ -153,6 +175,14 @@ class TextProcessor:
 
     def _load_idx2word(self, filepath) -> Dict[int, str]:
         # Load idx2word dict
+        """
+        Load the file idx2word.txt.
+        Args:
+            filepath: The path of the file containing the index and word.
+
+        Returns:
+            Dict[int, str]: Dict of indexes and words.
+        """
         idx2word = {}
         with open(filepath, "r") as f:
             for line in f:
@@ -164,7 +194,9 @@ class TextProcessor:
         """
         Save the vocabulary and word frequency , word2idx, and idx2word to
         word_freq.txt, word2idx.txt, and idx2word.txt.
-        This function does not return anything. It save the vocabulary and word frequency.
+
+        Returns:
+            This function does not return anything. It save the vocabulary and word frequency.
         """
         # YOUR CODES START HERE
         # Clear all data in word2idx and idx2word for preventing duplicate with old data
@@ -183,25 +215,55 @@ class TextProcessor:
         self._save_idx2word(IDX2WORD_FILEPATH)
 
     def _save_word_freq(self, filepath) -> None:
-        word_sorted_by_freq = self._get_word_sorted_by_freq()
+        """
+        Save the word frequency.
+        Args:
+            filepath: The path of saving file.
+
+        Returns:
+            This function does not return anything.
+        """
+        word_sorted_by_freq = self.get_word_sorted_by_freq()
         # Save word frequency
         with open(filepath, 'w') as f:
             # use join with generator expression
             f.write("".join((f"{word} {freq}\n" for word, freq in word_sorted_by_freq)))
 
     def _save_word2idx(self, filepath) -> None:
+        """
+        Save the dictionary word2idx.
+        Args:
+            filepath: The path of saving file.
+
+        Returns:
+            This function does not return anything.
+        """
         # Save word2idx
         with open(filepath, 'w') as f:
             # use join with generator expression
             f.write("".join(f"{word} {index}\n" for word, index in self.word2idx.items()))
 
     def _save_idx2word(self, filepath) -> None:
+        """
+        Save the dictionary idx2word.
+        Args:
+            filepath: The path of saving file.
+
+        Returns:
+            This function does not return anything.
+        """
         # Save idx2word
         with open(filepath, 'w') as f:
             # use join with generator expression
             f.write("".join(f"{index} {word}\n" for index, word in self.idx2word.items()))
 
-    def _get_word_sorted_by_freq(self):
+    def get_word_sorted_by_freq(self) -> list[tuple]:
+        """
+        Get the list of word sorted by frequency.
+        Returns:
+            list[tuple]: a list of tuple (word, frequency).
+        """
+
         # This closure function to get key in the element of iterator for sorting
         def get_frequency(element):
             return element[1]
@@ -211,13 +273,13 @@ class TextProcessor:
 
     def _get_stopwords(self, stopwords_file: str) -> list[str]:
         """
-        This function gets all the stop words from the file
+        This function gets all the stop words from the file.
 
-        Params:
-            1. stopwords_file: <str> the file name containing the stop words
+        Args:
+            stopwords_file (str): the file name containing the stop words.
 
-        Return:
-            stopwords: <list> a list of strings (the stop words)
+        Returns:
+             list[str]: a list of strings (the stop words).
         """
         stopwords = []
 
@@ -228,22 +290,19 @@ class TextProcessor:
 
         return stopwords
 
-    def _get_word_freq(self, text: str, stopwords: list[str]) -> Dict[str, int]:
+    def get_vocabs(self, text: str, stopwords: list[str]) -> Dict[str, int]:
         """
-        This function splits the text into words and count number of time each word appears
+        This function splits the text into words and count number of time each word appears.
 
-        Params:
-            1. text: <str> the unformatted text string
-            2. stopwords: <str> the word to be filtered out
+        Args:
+            text (str): the unformatted text string.
+            stopwords (list[str]): Words to be filtered out.
 
         Returns:
-            result: <Dict[str, int]> A dictionary contain words and its amount.
+            Dict[str, int]: A dictionary contain words and its amount.
         """
         if text is None or len(text) == 0:
             return {}
-
-        # CONSTANTS
-        PUNCTUATIONS = "!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~"
 
         # PROCESS: process the word list and generate a word dictionary containing its count
         words = self._get_words(text, PUNCTUATIONS)
@@ -265,16 +324,16 @@ class TextProcessor:
         # --- MAIN OUTPUT: return the result tuple (if the dictionary is not empty)
         return words_dict
 
-    def _get_words(self, text: str, delimiters: str) -> list:
+    def _get_words(self, text: str, delimiters: str) -> list[str]:
         """
-        This function extract a list of (lowercase) words from the input text
+        This function extract a list of (lowercase) words from the input text.
 
-        Params:
-            1. text: <str> the input text string
-            2. delimiters: <str> the symbols / characters that should be filtered from the word
+        Args:
+            text (str): the input text string.
+            delimiters (str): the symbols / characters that should be filtered from the word.
 
         Returns:
-            words: <list> a list of lowercase words
+            list[str]: a list of lowercase words.
         """
         words = []
         word_buffer = ""
@@ -301,13 +360,13 @@ class TextProcessor:
 
     def _check_word_has_number(self, word: str) -> bool:
         """
-        This function check if a word contain a number (digit)
+        This function check if a word contain a number (digit).
 
-        Params:
-            1. word: <str> the word to be checked
+        Args:
+            word (str): the word to be checked.
 
         Returns:
-            - <bool>: a boolean check if that function has a number or not
+            bool: a boolean check if that function has a number or not.
 
         """
         for char in word:
@@ -320,9 +379,9 @@ class TextProcessor:
         """
         Load the file containing indexes and their labels.
         Args:
-            idx2label_filepath (str):  path of the idx2label file.
+            filepath (str):  path of the idx2label file.
         Returns:
-            label_df (pandas.DataFrame): DataFrame mapping label ids to label names.
+            pd.DataFrame: DataFrame mapping label ids to label names.
         """
         with open(filepath) as f:
             mapping_dict = json.load(f)
@@ -331,36 +390,80 @@ class TextProcessor:
 
     # ========== GETTERS & SETTERS ==========
     def get_word_freq(self) -> Dict[str, int]:
-        """Getter for word_freq dictionary."""
+        """
+        Get the word frequency.
+        Returns:
+            Dict[str, int]: A dictionary contain words and its amount.
+        """
         return self.word_freq
 
     def set_word_freq(self, word_freq: Dict[str, int]) -> None:
-        """Setter for word_freq dictionary."""
+        """
+        Set the word frequency.
+        Args:
+            word_freq (Dict[str, int]): a dictionary contain words and its amount which want to set.
+
+        Returns:
+            This function does not return anything.
+        """
         self.word_freq = word_freq
 
     def get_word2idx(self) -> Dict[str, int]:
-        """Getter for word2idx dictionary."""
+        """
+        Get the word2idx.
+        Returns:
+            Dict[str, int]: A dictionary contain words and its index.
+        """
         return self.word2idx
 
     def set_word2idx(self, word2idx: Dict[str, int]) -> None:
-        """Setter for word2idx dictionary."""
+        """
+        Set the word2idx.
+        Args:
+            word2idx (Dict[str, int]): a dictionary contain words and its index.
+
+        Returns:
+            This function does not return anything.
+        """
         self.word2idx = word2idx
 
     def get_idx2word(self) -> Dict[int, str]:
-        """Getter for idx2word dictionary."""
+        """
+        Get the idx2word.
+        Returns:
+            Dict[int, str]: A dictionary contain indexes and words.
+        """
         return self.idx2word
 
     def set_idx2word(self, idx2word: Dict[int, str]) -> None:
-        """Setter for idx2word dictionary."""
+        """
+        Set the idx2word.
+        Args:
+            idx2word (Dict[int, str]): a dictionary contain indexes and words.
+
+        Returns:
+            This function does not return anything.
+        """
         self.idx2word = idx2word
 
     def get_stopwords(self) -> list[str]:
-        """Getter for stopwords list."""
+        """
+        Get the stopwords.
+        Returns:
+            list[str]: a list of strings (the stop words).
+        """
         return self.stopwords
 
     def set_stopwords(self, stopwords: list[str]) -> None:
-        """Setter for stopwords list."""
+        """
+        Set the stopwords.
+        Args:
+            stopwords (list[str]): a list of strings (the stop words).
+        Returns:
+            This function does not return anything.
+        """
         self.stopwords = stopwords
+
 
 if __name__ == "__main__":
     tp = TextProcessor(
