@@ -1,7 +1,6 @@
 from task7 import TextProcessor
 import math
 
-from typing import Dict
 
 class EssayScorer:
     """ EssayScorer Class """
@@ -19,7 +18,7 @@ class EssayScorer:
 
         self.text_processor = text_processor
 
-    def score_essay(self, prob_statement: str, file_path: str) -> Dict[str, float]:
+    def score_essay(self, prob_statement: str, file_path: str) -> dict[str, float]:
         """
         This function scores an essay based on the scoring criteria.
 
