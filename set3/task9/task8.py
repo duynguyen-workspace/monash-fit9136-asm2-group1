@@ -231,7 +231,7 @@ class RoleBasedVocabSys:
         """
         Read a single valid menu choice and dispatch the action based on state/role.
         Returns:
-            This fucntion return nothing. This return is used for exiting the function
+            str: user choice from 1 to 6 and verified by user's role.
         """
         check_user_valid = False
         while not check_user_valid:
