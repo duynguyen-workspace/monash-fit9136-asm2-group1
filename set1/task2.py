@@ -281,8 +281,6 @@ def show_summarization(login_user: Dict[str, str], marks: Dict[str, Dict[str, in
 
 
 
-    print("==================================") # seperator
-
     for label, value in marks_summary.items():
         print(f"{label}: {value}")
 
