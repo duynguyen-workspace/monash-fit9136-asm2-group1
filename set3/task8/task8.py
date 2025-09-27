@@ -54,6 +54,24 @@ class Role:
         return self.name
 
 
+def check_existing_path(prompt: str) -> str:
+    """
+    Check if path exists.
+    Args:
+        prompt (str): prompt string.
+
+    Returns:
+        file_path (str): path to file.
+    """
+    is_valid_path = False
+
+    while not is_valid_path:
+        filepath = input(prompt).strip()
+        #check file path valid
+        if os.path.exists(filepath):
+            return filepath
+    return "No valid path found"
+
 class RoleBasedVocabSys:
     """
     RoleBasedVocabSys class to define instance of role-based vocabulary system.
@@ -85,7 +103,7 @@ class RoleBasedVocabSys:
         self.text_processor = TextProcessor(stopwords_filepath,
                                             corpus_filepath,
                                             idx2label_filepath)
-        self.exit = False
+        self.user_choice = None
 
     def start(self):
         # YOUR CODES START HERE
@@ -95,7 +113,7 @@ class RoleBasedVocabSys:
             This function return nothing. It will start role based vocabulary system and exit
             when user choose option exit.
         """
-        while not self.exit:
+        while self.user_choice != "1":
             menu = self.generate_menu()
             print(menu)
             self.get_user_choice()
@@ -112,19 +130,23 @@ class RoleBasedVocabSys:
                     "Please Login:\n"
                     "1.Exit\n"
                     "2.Login\n")
+
         if self.current_user.get_access() == "reader":
             return (
+                f"Welcome {self.current_user.get_name()}\n"
                 "Please choose one option below:\n"
                 "1.Exit\n"
-                "2.Logout / Re-Login\n"
+                "2.Logout/Re-Login\n"
                 "3.Show top 10 frequency vocabularies\n"
                 "4.Show last 10 frequency vocabularies"
             )
+
         if self.current_user.get_access() == "admin":
             return (
+                f"Welcome {self.current_user.get_name()}\n"
                 "Please choose one option below:\n"
                 "1.Exit\n"
-                "2.Logout / Re-Login\n"
+                "2.Logout/Re-Login\n"
                 "3.Show top 10 frequency vocabularies\n"
                 "4.Show last 10 frequency vocabularies\n"
                 "5.Updating Vocabulary for adding\n"
@@ -147,7 +169,7 @@ class RoleBasedVocabSys:
             return user_choice in choices[:2]
         # Verify for reader
         elif self.current_user.get_access() == "reader":
-            return user_choice in choices[:5]
+            return user_choice in choices[:4]
         # Verify for admin
         elif self.current_user.get_access() == "admin":
             return user_choice in choices
@@ -160,64 +182,58 @@ class RoleBasedVocabSys:
         Returns:
             This fucntion return nothing. This return is used for exiting the function
         """
-
-        while True:
-            user_choice = input("Enter your choice: ").strip()
-            if self.verify_user_choice(user_choice):
-                break
-            print("Invalid choice. Please try again.")
+        check_user_valid = False
+        while not check_user_valid:
+            self.user_choice = input("Enter your choice: ").strip()
+            check_user_valid = self.verify_user_choice(self.user_choice)
 
         if self.current_user is None:
-            if user_choice == "1":
+            if self.user_choice == "1":
                 print("Exited")
-                self.exit = True
-            elif user_choice == "2":
+                return
+            elif self.user_choice == "2":
                 self.login()
             return
 
         access = self.current_user.get_access()
 
-        def get_frequency(element):
-            frequency = element[1]
-            return frequency
+        word_list = self.text_processor.get_word_sorted_by_freq()
 
-        word_sorted_by_freq = sorted(self.text_processor
-                                     .word_freq.items(),
-                                     key=get_frequency,
-                                     reverse=True)
-
-        if user_choice == "1":
+        if self.user_choice == "1":
             print("Exited")
-            self.exit = True
             return
-        elif user_choice == "2":
+        elif self.user_choice == "2":
             self.current_user = None
             print("Logged out.")
             return
-        elif user_choice == "3":
-            # TODO: show vocab
-            print("Showing top 10 vocabulary")
-            print(word_sorted_by_freq[:10])
+        # Print top 10 frequency words
+        elif self.user_choice == "3":
+            print("====================")
+            for wrd, frq in word_list[:10]:
+                print(f"{wrd} {frq}")
+            print("====================")
             return
-        elif user_choice == "4":
-            # TODO: top 10 vocab
-            print("Showing bottom 10")
-            print(word_sorted_by_freq[-10:])
+        # Print bottom 10 frequency words
+        elif self.user_choice == "4":
+            print("====================")
+            for wrd, frq in word_list[-10:]:
+                print(f"{wrd} {frq}")
+            print("====================")
             return
 
         if access == "admin":
-            if user_choice == "5":
-                path = input("Path to add: ").strip()
-
-                self.text_processor.add_file(path)
-                print("Vocabulary updated (added).")
-
+            # Add vocabulary
+            if self.user_choice == "5":
+                add_file_path = check_existing_path("Enter the file path: ")
+                self.text_processor.add_file(add_file_path)
+                print("done.")
                 return
-            elif user_choice == "6":
-                path = input("Path to remove: ").strip()
-
-                self.text_processor.delete_file(path)
-                print("Vocabulary updated (removed).")
+            # Delete vocabulary
+            elif self.user_choice == "6":
+                delete_file_path = check_existing_path("Enter the file path: ")
+                self.text_processor.delete_file(delete_file_path)
+                print("done.")
+                return
 
     def login(self):
         """

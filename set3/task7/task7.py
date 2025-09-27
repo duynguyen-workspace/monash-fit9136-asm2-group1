@@ -29,7 +29,7 @@ def get_vocabs(text: str, stopwords: list) -> tuple[tuple[str], tuple[int]]:
     for word in words:
         # SUBPROCESS: skip the word if word length < 2, word contains number or word is a stopword
         word_size = len(word)
-        if word_size < 2 or word in stopwords or check_word_has_number(word) or not word.isalpha():
+        if word_size < 2 or word in stopwords or check_word_has_number(word):
             continue
 
         # SUBPROCESS: add / update word (lowercase) into dictionary
@@ -77,7 +77,7 @@ def get_words(text: str, delimiters: str) -> list:
     word_buffer = ""
     # iterate each character, form into a word and add to word list
     for char in text:
-        # while buffer is empty, skip the character if it is a blank space or a delimeter
+        # while buffer is empty, skip the character if it is a blank space or a delimiters
         if len(word_buffer) == 0 and (char.isspace() or char in delimiters):
             continue
 
@@ -151,6 +151,15 @@ def get_stopwords(stopwords_file: str) -> list[str]:
 
 
 def get_corpus(corpus_filepath, label_df):
+    """
+    Merge the label dataframe and corpus dataframe return the corpus after joining
+    Args:
+        corpus_filepath (str):  path of the corpus file.
+        label_df (pandas.DataFrame): label data frame.
+
+    Returns:
+        pandas.DataFrame: corpus dataframe after joining abd have label_name column.
+    """
     # Cast the datatype of label column in label dataframe to int same data type with corpus
     label_df["label"] = label_df["label"].astype(int)
     corpus_df = pd.read_csv(corpus_filepath)
@@ -295,17 +304,13 @@ class TextProcessor:
         Save the vocabulary and word frequency , word2idx, and idx2word to
         word_freq.txt, word2idx.txt, and idx2word.txt.
         This function does not return anything. It save the vocabulary and word frequency.
-        """   
+        """
         # YOUR CODES START HERE
         # Clear all data in word2idx and idx2word for preventing duplicate with old data
         self.word2idx.clear()
         self.idx2word.clear()
-        
-        # This closure function to get key in the element of iterator for sorting
-        def get_frequency(element):
-            return element[1]
 
-        word_sorted_by_freq = sorted(self.word_freq.items(), key=get_frequency, reverse=True)
+        word_sorted_by_freq = self.get_word_sorted_by_freq()
         word_sorted_by_name = sorted(self.word_freq.keys())
 
         for index, word in enumerate(word_sorted_by_name):
@@ -327,6 +332,13 @@ class TextProcessor:
             # use join with generator expression
             f.write("".join(f"{index} {word}\n" for index, word in self.idx2word.items()))
 
+    def get_word_sorted_by_freq(self):
+        # This closure function to get key in the element of iterator for sorting
+        def get_frequency(element):
+            return element[1]
+
+        word_sorted_by_freq = sorted(self.word_freq.items(), key=get_frequency, reverse=True)
+        return word_sorted_by_freq
 
 if __name__ == "__main__":
     tp = TextProcessor(
