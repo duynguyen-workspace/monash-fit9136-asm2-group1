@@ -8,7 +8,7 @@ def get_vocabs_simple(text: str) -> Tuple[Tuple[str], Tuple[int]]:
         1. text: <str> the unformatted text string
     
     Returns:
-        vocabs: <Tuple[Tuple[str], Tuple[int]]> A tuple that contains 2 subtuples
+        vocabs (Tuple[Tuple[str], Tuple[int]]): A tuple that contains 2 subtuples
         - the_word_list: list of words in the text string
         - the_count_list: number of iteration that each word appears
 
@@ -64,10 +64,10 @@ def get_vocabs(text: str) -> Tuple[Tuple[str], Tuple[int]]:
     This function splits the text into words and count the number of time each word appears
     
     Params:
-        1. text: <str> the unformatted text string
+        1. text (str): the unformatted text string
 
     Returns:
-        vocabs: <Tuple[Tuple[str], Tuple[int]]> A tuple that contains 2 subtuples
+        vocabs (Tuple[Tuple[str], Tuple[int]]): A tuple that contains 2 subtuples
         - the_word_list: list of words in the text string
         - the_count_list: number of iteration that each word appears
 
@@ -118,10 +118,10 @@ def get_words(text: str) -> List[str]:
     This function process the input text and extract a list of (cleaned) words
 
     Params:
-        1. text: <str> the input text string
+        1. text (str): the input text string
 
     Returns:
-        words: <List[str]> a list of lowercase words
+        words (List[str]): a list of lowercase words
 
     Requirements:
         1. all words are in lowercase

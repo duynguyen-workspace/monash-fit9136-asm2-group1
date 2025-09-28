@@ -6,11 +6,14 @@ def get_stopwords(stopwords_file: str) -> List[str]:
     This function gets all the stop words from the file 
 
     Params:
-        1. stopwords_file: <str> the file name containing the stop words
+        1. stopwords_file (str): the file name containing the stop words
 
     Return:
-        stopwords: <List[str]> a list of strings (the stop words)
+        stopwords (List[str]): a list of strings (the stop words)
     """
+    if not stopwords_file:
+        return []
+    
     stopwords = []
 
     with open(stopwords_file, "r") as f:
@@ -22,14 +25,15 @@ def get_stopwords(stopwords_file: str) -> List[str]:
 
 def get_vocabs(text: str, stopwords: List) -> Tuple[Tuple[str], Tuple[int]]:
     """
-    This function splits the text into words and count number of time each word appears
+    This function splits the text into words and 
+    count number of time each word appears
     
     Params:
-        1. text: <str> the unformatted text string
-        2. stopwords: <str> the word to be filtered out
+        1. text (str): the unformatted text string
+        2. stopwords (str): the word to be filtered out
     
     Returns:
-        vocabs: <Tuple[Tuple[str], Tuple[int]]> A tuple that contains 2 tuples
+        vocabs (Tuple[Tuple[str], Tuple[int]]): A tuple that contains 2 tuples
         - the_word_list: list of words in the text string
         - the_count_list: number of iteration that each word appears
     """
@@ -68,16 +72,16 @@ def get_vocabs(text: str, stopwords: List) -> Tuple[Tuple[str], Tuple[int]]:
 
     return vocabs
 
-def get_words(text: str) -> list:
+def get_words(text: str) -> List[str]:
     """
     This function extract a list of (lowercase) cleaned words from the input text
     based on the given requirements
 
     Params:
-        1. text: <str> the input text string
+        1. text (str): the input text string
     
     Returns:
-        words: <list> a list of lowercase words
+        words (List[str]): a list of lowercase words
 
     Requirements:
         1. all words have been converted to lowercase
@@ -120,10 +124,10 @@ def check_word_has_number(word: str) -> bool:
     This function check if a word contain a number (digit)
 
     Params:
-        1. word: <str> the word to be checked
+        1. word (str): the word to be checked
     
     Returns:
-        - <bool>: a boolean check if that function has a number or not
+        bool: a boolean check if that function has a number or not
     """
     for char in word:
         if char.isdigit():
@@ -140,7 +144,7 @@ def process_mini_dataset(
     This function read all the .txt files from the data path and generate a vocabulary list 
 
     Params:
-        1. stop_words: <Set[str]> a list of word that should not be included in the vocab list
+        1. stop_words (Set[str]): a list of word that should not be included in the vocab list
         2. data_path: <str> the path to the 'data' folder that contains the .txt files 
         3. category: <str> the category name 
     

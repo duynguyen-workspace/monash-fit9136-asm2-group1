@@ -251,7 +251,8 @@ def show_summarization(login_user: Dict[str, str], marks: Dict[str, Dict[str, in
         None: the output is print out to the console
     """
     # Get available marks from the user and compute the menu prompt
-    available_marks = marks.get('username').keys()
+    username = login_user.get('username')
+    available_marks = marks.get(username).keys()
     
     if not available_marks:
         return
