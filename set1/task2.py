@@ -304,11 +304,10 @@ def get_menu_choice(prompt: str, options: List[str]) -> str:
 # THIS ENSURES THAT THE CODE BELOW ONLY RUNS WHEN YOU HIT THE GREEN `Run` BUTTON, AND NOT THE BLUE `Test` BUTTON
 if __name__ == "__main__":
     user_info = {
-        "trang": "trang123"
+        "Jueqing": "Jueqing123"
     }
     mark_unprocessed = {
         "Jueqing": "A1: 99, A2: 200, A3: -100",
         "Trang"  : "A1: 300, A2: 100, A3: 100"
     }
     main(user_info, mark_unprocessed)
-    # print(process_multiple_students_marks(mark_unprocessed))
