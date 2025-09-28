@@ -5,7 +5,7 @@ def get_stopwords(stopwords_file: str) -> List[str]:
     """
     This function gets all the stop words from the file 
 
-    Params:
+    Args:
         1. stopwords_file (str): the file name containing the stop words
 
     Return:
@@ -28,7 +28,7 @@ def get_vocabs(text: str, stopwords: List) -> Tuple[Tuple[str], Tuple[int]]:
     This function splits the text into words and 
     count number of time each word appears
     
-    Params:
+    Args:
         1. text (str): the unformatted text string
         2. stopwords (str): the word to be filtered out
     
@@ -77,7 +77,7 @@ def get_words(text: str) -> List[str]:
     This function extract a list of (lowercase) cleaned words from the input text
     based on the given requirements
 
-    Params:
+    Args:
         1. text (str): the input text string
     
     Returns:
@@ -123,7 +123,7 @@ def check_word_has_number(word: str) -> bool:
     """
     This function check if a word contain a number (digit)
 
-    Params:
+    Args:
         1. word (str): the word to be checked
     
     Returns:
@@ -143,7 +143,7 @@ def process_mini_dataset(
     """
     This function read all the .txt files from the data path and generate a vocabulary list 
 
-    Params:
+    Args:
         1. stop_words (Set[str]): a list of word that should not be included in the vocab list
         2. data_path (str): the path to the 'data' folder that contains the .txt files 
         3. category (str): the category name 
@@ -195,7 +195,7 @@ def get_text_from_files(data_path: str) -> str:
     This function read all the .txt file inside the path and 
     concatenate its content into a string
 
-    Params:
+    Args:
         1. data_path (str): the path to the folder containing the files
     
     Returns:

@@ -1,6 +1,6 @@
 from task7 import TextProcessor
 import math
-
+from typing import Dict
 
 class EssayScorer:
     """ EssayScorer Class """
@@ -11,23 +11,23 @@ class EssayScorer:
         
         Initializes an EssayScorer with a TextProcessor instance.
 
-        Params:
-            1. text_processor: <TextProcessor> A text-processor object that provides methods for
+        Args:
+            1. text_processor (TextProcessor): A text-processor object that provides methods for
             word extraction, frequency counting, and stopword retrieval (relevant to this Task).
         """
 
         self.text_processor = text_processor
 
-    def score_essay(self, prob_statement: str, file_path: str) -> dict[str, float]:
+    def score_essay(self, prob_statement: str, file_path: str) -> Dict[str, float]:
         """
         This function scores an essay based on the scoring criteria.
 
-        Params:
-            1. prob_statement: <str> The given problem statement that contains the topic words for essay evaluation.
-            2. file_path: <str> The path to where the essay text file is located.
+        Args:
+            1. prob_statement (str): The given problem statement that contains the topic words for essay evaluation.
+            2. file_path (str): The path to where the essay text file is located.
 
         Returns:
-            <dict> A dictionary with component scores (length, relevance, rarity, 
+            Dict[str, float]: A dictionary with component scores (length, relevance, rarity, 
                    variety, penalty) and the total score (all are rounded to 2 decimals).
         
         Requirements:
@@ -80,11 +80,11 @@ class EssayScorer:
         
         This function get the essay's word count and evaluates the score for length check.
 
-        Params:
-            1. essay: <str> The essay text.
+        Args:
+            1. essay (str): The essay text.
 
         Returns:
-            length_score: <float> The length score (between 0.0 and 10.0).
+            length_score (float): The length score (between 0.0 and 10.0).
             (rounded to 2 decimals)
 
         Requirements:
@@ -101,7 +101,7 @@ class EssayScorer:
         # Calculate the score and penalties if word count is under / overshoot 
         if word_count >= 300 and word_count <= 500:
             return 10.0
- 
+
         word_diff = 300 - word_count if word_count < 300 else word_count - 500 # word_count difference
         penalty = word_diff / 20 # deduct 10% for every 20 words
         length_score = max(0.0, 10.0 - penalty)
@@ -114,12 +114,12 @@ class EssayScorer:
         This function get the topic words (excluding stopwords) of problem statement,
         measure the essay relevance to it, and compute the relevance score.
 
-        Params:
-            1. prob_statement: <str> The given problem statement that contains the topic words for essay evaluation.
-            2. essay: <str> The essay text.
+        Args:
+            1. prob_statement (str): The given problem statement that contains the topic words for essay evaluation.
+            2. essay (str): The essay text.
 
         Returns:
-            relevance_score: <float> Relevance score between 0.0 and 40.0.
+            relevance_score (float): Relevance score between 0.0 and 40.0.
             (rounded to 2 decimals)
 
         Requirement: 
@@ -140,11 +140,6 @@ class EssayScorer:
         # Get all the topic words and count their appearance in the essay text
         essay_word_freq = self.text_processor.get_vocabs(essay, self.text_processor.get_stopwords())
         count_dict = {word: freq for word, freq in essay_word_freq.items() if word in topic_words}
-
-        # count_dict = {}
-        # for word, freq in essay_word_freq.items():
-        #     if word in topic_words:
-        #         count_dict[word] = freq
         
         if not count_dict:
             return 0.0 
@@ -163,11 +158,11 @@ class EssayScorer:
         This function count the number of unique words (excluding stopwords) in the essay,
         measure with the corpus words_freq dictionary, and calculate the rarity score.
 
-        Params:
-            1. essay: <str> The essay text.
+        Args:
+            1. essay (str): The essay text.
 
         Returns:
-            rarity_score: <float> Rarity score between 0.0 and 30.0.
+            rarity_score (float): Rarity score between 0.0 and 30.0.
             (rounded to 2 decimals)
 
         Requirements: 
@@ -209,7 +204,6 @@ class EssayScorer:
         if total_rarity_points <= 0:
             return 0.0
             
-
         total_unique_words_points = len(unique_words) * 3
         rarity_points = round(min(30, 30 * (total_rarity_points / total_unique_words_points)), 2)
 
@@ -221,11 +215,11 @@ class EssayScorer:
         This function count the number of unique words (excluding stopwords) and also total words in the essay,
         to calculate the variety score.
 
-        Params:
-            1. essay: <str> The essay text.
+        Args:
+            1. essay (str): The essay text.
 
         Returns:
-            variety_score: <float> Rarity score between 0.0 and 20.0. 
+            variety_score (float): Variety score between 0.0 and 20.0. 
             (rounded to 2 decimals)
 
         Requirements: 
@@ -248,11 +242,11 @@ class EssayScorer:
         This function count the number of stopwords in the essay, and
         calculate the penalty (if occured) based on the percentage of stopword appearance.
 
-        Params:
-            1. essay: <str> The essay text.
+        Args:
+            1. essay: (str) The essay text.
 
         Returns:
-            <float> The filler penality: 0.0 or 10.0. 
+            float: The filler penality: 0.0 or 10.0. 
 
         Requirements: 
             Subtract 10 marks if 50% of essay are stopwords
@@ -262,7 +256,7 @@ class EssayScorer:
         stopwords = self.text_processor.get_stopwords()
         essay_stopwords_freq = {word: freq for word, freq in essay_word_freq.items() if word in stopwords}
         
-        # Calculate the percentage of stopwords appearance and compute the penalty if over 50%
+        # Calculate the percentage of stopwords appearance and compute the penalty if appear over 50%
         essay_stopwords_count = sum(essay_stopwords_freq.values())
         total_word_count = sum(essay_word_freq.values())
         
