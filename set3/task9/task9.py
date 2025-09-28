@@ -3,7 +3,12 @@ import math
 from typing import Dict
 
 class EssayScorer:
-    """ EssayScorer Class - use to mark essay"""
+    """ EssayScorer Class - mark essay by the marking criteria
+    
+    Instance variable:
+        1. text_processor: the object use to process text and extract words for 
+        essay marking purpose
+    """
     
     def __init__(self, text_processor):
         """
@@ -95,7 +100,7 @@ class EssayScorer:
                 --> 10% deduction for every 20 words under / overshoot, cap at 0
         """
         # Count total words appear in the essay
-        essay_word_freq = self.text_processor.get_vocabs(essay, [])
+        essay_word_freq = self.text_processor.extract_word_freq(essay, [])
         word_count = sum(essay_word_freq.values())
         
         # Calculate the score and penalties if word count is under / overshoot 
@@ -134,11 +139,11 @@ class EssayScorer:
 
         # Get the topic words list from the problem statement
         stopwords = self.text_processor.get_stopwords()
-        statement_word_freq = self.text_processor.get_vocabs(prob_statement, stopwords)
+        statement_word_freq = self.text_processor.extract_word_freq(prob_statement, stopwords)
         topic_words = statement_word_freq.keys()
         
         # Get all the topic words and count their appearance in the essay text
-        essay_word_freq = self.text_processor.get_vocabs(essay, self.text_processor.get_stopwords())
+        essay_word_freq = self.text_processor.extract_word_freq(essay, self.text_processor.get_stopwords())
         count_dict = {word: freq for word, freq in essay_word_freq.items() if word in topic_words}
         
         if not count_dict:
@@ -175,7 +180,7 @@ class EssayScorer:
             - > 100: 1 mark
         """
         # Get the unique words list from the essay and the word list from the TextProcessor corpus
-        essay_word_freq = self.text_processor.get_vocabs(essay, self.text_processor.get_stopwords())
+        essay_word_freq = self.text_processor.extract_word_freq(essay, self.text_processor.get_stopwords())
         unique_words = essay_word_freq.keys()
 
         corpus_word_freq = self.text_processor.get_word_freq()
@@ -227,7 +232,7 @@ class EssayScorer:
             --> variety_score = 20 * math.sqrt(U / L)
         """
         # Get the word_count for unique words and all words appear (excluding stopwords)
-        essay_word_freq = self.text_processor.get_vocabs(essay, self.text_processor.get_stopwords())
+        essay_word_freq = self.text_processor.extract_word_freq(essay, self.text_processor.get_stopwords())
         unique_words_count = len(essay_word_freq.keys())
         total_words_count = sum(essay_word_freq.values())
         
@@ -252,7 +257,7 @@ class EssayScorer:
             Subtract 10 marks if 50% of essay are stopwords
         """
         # Count the number of stopwords and total word_count of the essay
-        essay_word_freq = self.text_processor.get_vocabs(essay, [])
+        essay_word_freq = self.text_processor.extract_word_freq(essay, [])
         stopwords = self.text_processor.get_stopwords()
         essay_stopwords_freq = {word: freq for word, freq in essay_word_freq.items() if word in stopwords}
         

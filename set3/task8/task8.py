@@ -2,16 +2,14 @@ from typing import Optional
 import os
 from task7 import TextProcessor
 
-
-
 class Role:
     """
     Role class to define an user when login.
 
     Instance Variables:
-        user_name(str): user name of user.
-        access (str): access level of user.
-        name (str): full name of user.
+        1. user_name(str): user name of user.
+        2. access (str): access level of user.
+        3. name (str): full name of user.
     """
     def __init__(self, user_name: str, access: str, name: str):
         # YOUR CODES START HERE

@@ -7,7 +7,6 @@ WORD_FREQ_FILEPATH = "word_freq.txt"
 WORD2IDX_FILEPATH = "word2idx.txt"
 IDX2WORD_FILEPATH = "idx2word.txt"
 
-
 class TextProcessor:
     """
     Text Processor Class - processing word in corpus.
@@ -16,11 +15,10 @@ class TextProcessor:
         1. word_freq (dict): The dictionary containing the words and their frequencies.
         2. word2idx (dict): The dictionary containing the words and their indexes.
         3. idx2word (dict): The dictionary containing keys are indexes and values are words.
-        4. stopwords (list): list of stop words.
+        4. stopwords (list): List of stopwords.
         5. idx2label (pandas.DataFrame): DataFrame mapping label ids to label names.
         6. corpus (pandas.DataFrame): DataFrame of all the text data, 
         containing 4 columns: id, text, label, label_name
-        7.
     """
 
     def __init__(
@@ -47,8 +45,6 @@ class TextProcessor:
         self.word_freq = {}
         self.word2idx = {}
         self.idx2word = {}
-        
-        # Extract stopwords, idx2label, and corpus texts
         self.stopwords = self.extract_stopwords(stopwords_filepath)
         self.idx2label = self._load_idx2label(idx2label_filepath)
         self.corpus = self._get_corpus(corpus_filepath, self.idx2label)
@@ -56,9 +52,8 @@ class TextProcessor:
         # Update word_freq from the extracted corpus texts
         self._add_freq_to_wordfreq(self.corpus["text"])
         
-        # Update word2idx and idx2word dictionaries
-        self._update_word_idx_dicts()
-
+        # Save the extracted word_freq to 3 text files
+        self.save()
     
     # ========== ADD FILE FUNCTION WITH PRIVATE HELPER ==========
     def add_file(self, add_file_path: str) -> None:
@@ -82,24 +77,25 @@ class TextProcessor:
         self.save()
         
 
-    def _add_freq_to_wordfreq(self, corpus_texts) -> None:
+    def _add_freq_to_wordfreq(self, corpus_texts: List[str] | pd.Series) -> None:
         """
         This function update the word frequency of TextProcessor when initiating instance or adding file.
         Args:
-            texts (Iterable[str]): A list or pandas Series of text documents to be processed.
+            texts (List[str] | pd.Series): A list or pandas Series of text documents to be processed.
 
         Returns:
             This function return nothing. It is used for updating word frequency.
         """
+        # Concatenate all the text from the corpus text
         added_text = ' '.join(corpus_texts)
-        added_word_freq = self.extract_wordfreq(text=added_text, stopwords=self.stopwords)
+        added_word_freq = self.extract_word_freq(text=added_text, stopwords=self.stopwords)
         
         if not added_word_freq:
             return None
 
-        # Insert / Update freq value for each vocab into the word_freq dictionary
-        for vocab, freq in added_word_freq.items():
-            self.word_freq[vocab] = self.word_freq.get(vocab, 0) + freq
+        # Insert new word / increment freq value for existing words in word_freq dictionary
+        for word, freq in added_word_freq.items():
+            self.word_freq[word] = self.word_freq.get(word, 0) + freq
     
     # ========== DELETE FILE FUNCTION WITH PRIVATE HELPER ==========
     def delete_file(self, delete_file_path) -> None:
@@ -123,24 +119,24 @@ class TextProcessor:
         self._delete_freq_from_wordfreq(deleted_texts)
         self.save()
         
-    def _delete_freq_from_wordfreq(self, corpus_texts) -> None:
+    def _delete_freq_from_wordfreq(self, corpus_texts: List[str] | pd.Series) -> None:
         """
         This function update the word frequency of TextProcessor when deleting file.
         
         Args:
-            texts (Iterable[str]): A list or pandas Series of text documents to be processed.
+            texts (pd.Series): A list or pandas Series of text documents to be processed.
 
         Returns:
             This function return nothing. It is used for updating word frequency.
         """
-            
+        # Concatenate all the text from the corpus text
         deleted_text = ' '.join(corpus_texts)
-        deleted_word_freq = self.extract_wordfreq(text=deleted_text, stopwords=self.stopwords)
+        deleted_word_freq = self.extract_word_freq(text=deleted_text, stopwords=self.stopwords)
         
         if not deleted_word_freq:
             return None
 
-        #         
+        # Decrease freq value for each word into the word_freq dictionary        
         for word, freq in deleted_word_freq.items():
             if word in self.word_freq.keys():
                 new_freq = self.word_freq[word] - freq
@@ -208,7 +204,6 @@ class TextProcessor:
         Returns:
             Dict[str, int]: Dict of words and its index.
         """
-        # Load word2idx dict
         word2idx = {}
         with open(filepath, "r") as f:
             for line in f:
@@ -218,7 +213,6 @@ class TextProcessor:
         return word2idx
 
     def _load_idx2word(self, filepath) -> Dict[int, str]:
-        # Load idx2word dict
         """
         Load the file idx2word.txt.
         Args:
@@ -238,7 +232,7 @@ class TextProcessor:
     # ========== SAVE FILE FUNCTION WITH PRIVATE HELPERS ==========
     def save(self) -> None:
         """
-        Save the vocabulary and word frequency , word2idx, and idx2word to
+        This function save the vocabulary and word frequency , word2idx, and idx2word to
         word_freq.txt, word2idx.txt, and idx2word.txt.
 
         Returns:
@@ -262,15 +256,17 @@ class TextProcessor:
         Returns:
             This function does not return anything.
         """
-        word_sorted_by_freq = self.get_word_sorted_by_freq()
-        # Save word frequency
+        # Sort the word_freq dictionary
+        word_sorted_by_freq = self.get_word_sorted_by_freq(self.word_freq)
+        
+        # Write a new line for each word and its freq
         with open(filepath, 'w') as f:
-            # use join with generator expression
             f.write("".join((f"{word} {freq}\n" for word, freq in word_sorted_by_freq)))
 
     def _save_word2idx(self, filepath) -> None:
         """
         Save the dictionary word2idx.
+        
         Args:
             filepath: The path of saving file.
 
@@ -285,6 +281,7 @@ class TextProcessor:
     def _save_idx2word(self, filepath) -> None:
         """
         Save the dictionary idx2word.
+        
         Args:
             filepath: The path of saving file.
 
@@ -296,18 +293,23 @@ class TextProcessor:
             # use join with generator expression
             f.write("".join(f"{index} {word}\n" for index, word in self.idx2word.items()))
 
-    def get_word_sorted_by_freq(self) -> list[tuple]:
+    def get_word_sorted_by_freq(self, word_freq: Dict[str, int]) -> List[tuple]:
         """
-        Get the list of word sorted by frequency.
+        This function sorts the word_freq dictionary in descending order of its frequency
+        
+        Args:
+            1. word_freq (Dict[str, int]): a dictionary of words and its count (frequency)
+        
         Returns:
             List[tuple]: a list of tuple (word, frequency).
         """
 
-        # This closure function to get key in the element of iterator for sorting
+        # This closure function to get the frequency in the element of iterator for sorting
         def get_frequency(element):
             return element[1]
 
-        word_sorted_by_freq = sorted(self.word_freq.items(), key=get_frequency, reverse=True)
+        word_sorted_by_freq = sorted(word_freq.items(), key=get_frequency, reverse=True)
+        
         return word_sorted_by_freq
 
     # ==================== PUBLIC HELPERS ====================
@@ -331,7 +333,7 @@ class TextProcessor:
 
         return stopwords
 
-    def extract_wordfreq(self, text: str, stopwords: list[str]) -> Dict[str, int]:
+    def extract_word_freq(self, text: str, stopwords: list[str]) -> Dict[str, int]:
         """
         This function splits the text into words and count number of time each word appears.
         Exclude any word that is a stopword
@@ -388,7 +390,7 @@ class TextProcessor:
     def _update_word_idx_dicts(self) -> None:
         """
         This function clear the existing data in word2idx and idx2word dictionaries,
-        and update its content based on the current word_freq to prevate duplicate data
+        and update its content based on the current word_freq to prevent duplicated data
         
         Args:
             None
