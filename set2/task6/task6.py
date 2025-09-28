@@ -1,4 +1,3 @@
-from set3.task7.task7 import IDX2WORD_FILEPATH
 from task4 import get_stopwords, get_vocabs
 from task5 import (
     load_word_freq, load_word2idx, load_idx2word,
