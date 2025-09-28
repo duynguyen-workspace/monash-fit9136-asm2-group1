@@ -266,7 +266,8 @@ def show_summarization(login_user: Dict[str, str], marks: Dict[str, Dict[str, in
         return
 
     assignments = sorted(assignments,reverse=True)
-    assignments_count = set(assignments)
+    assignments = set(assignments)
+    
     MENU_SUMMARY_PROMPT = (
         f"Available Assignments: {assignments}\n"
         "The Assignment you want to check (e.g., A1): "
