@@ -114,10 +114,11 @@ def summarize_marks(marks: Dict[str, Dict], split: str) -> Dict[str, int]:
     valid_count = 0
     
     for student in marks.keys():
-        mark = marks[student][split]
+        student_marks = marks[student]
+        mark = student_marks.get(split)
 
         # Skip student who don't have mark on assignment
-        if not mark:
+        if mark is None:
             continue
 
         if mark != float("-inf"):
