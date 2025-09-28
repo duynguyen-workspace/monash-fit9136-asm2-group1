@@ -3,7 +3,7 @@ import math
 from typing import Dict
 
 class EssayScorer:
-    """ EssayScorer Class """
+    """ EssayScorer Class - use to mark essay"""
     
     def __init__(self, text_processor):
         """
@@ -28,7 +28,7 @@ class EssayScorer:
 
         Returns:
             Dict[str, float]: A dictionary with component scores (length, relevance, rarity, 
-                   variety, penalty) and the total score (all are rounded to 2 decimals).
+                variety, penalty) and the total score (all are rounded to 2 decimals).
         
         Requirements:
             The scoring criteria to be evaluate for an essay are:

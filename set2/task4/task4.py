@@ -25,8 +25,8 @@ def get_stopwords(stopwords_file: str) -> List[str]:
 
 def get_vocabs(text: str, stopwords: List) -> Tuple[Tuple[str], Tuple[int]]:
     """
-    This function splits the text into words and 
-    count number of time each word appears
+    This function splits the text into words and count number of time each word appears.
+    Exclude any word that is a stopword
     
     Args:
         1. text (str): the unformatted text string

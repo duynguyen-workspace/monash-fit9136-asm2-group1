@@ -250,10 +250,10 @@ def show_summarization(marks: Dict[str, Dict[str, int]]) -> None:
     # Get all the available marks (choose the user with the most assignment records) 
     available_marks = None
     
-    for student in marks.keys():
-        curr_marks = student.keys()
-        if available_marks is None or len(curr_marks) > len(available_marks):
-            available_marks = curr_marks 
+    for student, assignments in marks.items():
+        asm_marks = assignments.keys()
+        if available_marks is None or len(asm_marks) > len(available_marks):
+            available_marks = asm_marks 
 
     if not available_marks:
         return
