@@ -4,7 +4,7 @@ import os
 
 def get_stopwords(stopwords_file: str) -> List[str]:
     """
-    This function gets all the stop words from the file 
+    This function gets all the stop words from the file
 
     Args:
         1. stopwords_file (str): the file name containing the stop words
