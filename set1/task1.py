@@ -96,17 +96,17 @@ def process_multiple_students_marks(mark_dict: Dict[str, str]) -> Dict[str, int 
 
     return mark_dict
 
-def summarize_marks(marks: Dict[str, Dict], split: str) -> Dict[str, int]:
+def summarize_marks(marks: Dict[str, Dict[str, int | float]], split: str) -> Dict[str, int | float]:
     """
     This function summarizes the result for a specific assignment: 
     calculating the average, number of invalid and valid marks.
     
     Args:
-        1. marks (Dict[str, Dict]): Dictionary which is collection for all students.
+        1. marks (Dict[str, Dict[str, int | float]): Dictionary which is contains the marks for all students.
         2. split (str): Assignment want to summarize.
 
     Returns:
-        <Dict[str, int]>: A dictionary containing the average mark, invalid count, 
+        Dict[str, int | float]: A dictionary containing the average mark, invalid count, 
         and valid count for the specified assignment.
     """
     total_sum = 0

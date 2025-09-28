@@ -4,7 +4,7 @@ from task5 import (
     save_word_freq, save_word2idx, save_idx2word   
 )
 
-# 3 constant file paths
+# CONSTANT FILE PATH
 WORD_FREQ_FILEPATH = "word_freq.txt"
 WORD2IDX_FILEPATH = "word2idx"
 IDX2WORD_FILEPATH = "idx2word.txt"

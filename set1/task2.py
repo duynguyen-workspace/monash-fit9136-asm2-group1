@@ -103,10 +103,8 @@ def summarize_marks(marks: Dict[str, Dict], split: str) -> Dict[str, int]:
     else:
         average_mark = total_sum / valid_count
         
-    final_average_mark = int(average_mark) if isinstance(average_mark, float) and average_mark.is_integer() else average_mark
-    
     return {
-        "average_mark": final_average_mark,
+        "average_mark": average_mark,
         "invalid_count": invalid_count,
         "valid_count": valid_count
     }
@@ -170,7 +168,7 @@ def main(user_info: Dict[str, str], mark_unprocessed: Dict[str, str]) -> None:
 
             # @Action 4: Show summarization
             if user_choice == "4":
-                show_summarization(login_user, marks_processed)
+                show_summarization(marks_processed)
 
 # ACTION FUNCTIONS --------------------------------------
 def login(user_info: Dict[str, str]) -> Dict[str, str] | None:
@@ -237,35 +235,39 @@ def show_mark_records(marks: Dict[str, int | float]) -> None:
         for asm_name, asm_mark in person_marks.items():
             print(f"\t{asm_name}: {asm_mark}")
 
-def show_summarization(login_user: Dict[str, str], marks: Dict[str, Dict[str, int]]) -> None:
+def show_summarization(marks: Dict[str, Dict[str, int]]) -> None:
     """
     This function show the summarization of an assignment based on the given marks 
     (reuse task 1 function)
 
     Args:
-        1. login_user (Dict[str, str]): the user info dictionary containing
-        student's username and password
-        2. marks(Dict[str, Dict[str, int]]): the dictionary containing 
+        1. marks(Dict[str, Dict[str, int]]): the dictionary containing 
         the students and their marks
 
     Return:
         None: the output is print out to the console
     """
-    # Get available marks from the user and compute the menu prompt
-    username = login_user.get('username')
-    available_marks = marks.get(username).keys()
+    # Get all the available marks (choose the user with the most assignment records) 
+    available_marks = None
     
+    for student in marks.keys():
+        curr_marks = student.keys()
+        if available_marks is None or len(curr_marks) > len(available_marks):
+            available_marks = curr_marks 
+
     if not available_marks:
         return
     
     asm_names = ", ".join(f"'{name}'" for name in available_marks)
     
+    # Compute the menu prompt
     MENU_SUMMARY_PROMPT = (
         f"Available Assignments: {{{asm_names}}}\n" 
         "The Assignment you want to check (e.g., A1): "
     ) # escape characters {{ }}
     MENU_SUMMARY_OPTIONS = list(available_marks)
 
+    # Get the summary result for chosen assignment
     chosen_assignment = get_menu_choice(MENU_SUMMARY_PROMPT, MENU_SUMMARY_OPTIONS)
     marks_summary = summarize_marks(marks, chosen_assignment)
 
