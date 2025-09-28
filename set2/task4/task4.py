@@ -145,11 +145,11 @@ def process_mini_dataset(
 
     Params:
         1. stop_words (Set[str]): a list of word that should not be included in the vocab list
-        2. data_path: <str> the path to the 'data' folder that contains the .txt files 
-        3. category: <str> the category name 
+        2. data_path (str): the path to the 'data' folder that contains the .txt files 
+        3. category (str): the category name 
     
     Return:
-        - vocabs: <Tuple[Tuple[str], Tuple[int]]> a tuple of vocabulary consists of two tuples:
+        vocabs (Tuple[Tuple[str], Tuple[int]]): a tuple of vocabulary consists of two tuples:
             + (str) the list of vocabularies name
             + (int) the count of each vocabulary appears
             (same return type as get_vocabs function)
@@ -196,10 +196,10 @@ def get_text_from_files(data_path: str) -> str:
     concatenate its content into a string
 
     Params:
-        1. data_path: <str> the path to the folder containing the files
+        1. data_path (str): the path to the folder containing the files
     
     Returns:
-        - text: <str> the content of all files in that folder
+        text (str): the content of all files in that folder
     """
     # Get all the files inside the directory
     all_files_in_dir = os.listdir(data_path)
