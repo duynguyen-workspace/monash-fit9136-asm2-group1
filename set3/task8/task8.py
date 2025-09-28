@@ -14,16 +14,20 @@ class Role:
     def __init__(self, user_name: str, access: str, name: str):
         # YOUR CODES START HERE
         """
-        Constructor a new user with role
+        ========== Role Constructor ==========
+        
+        Initialise a new Role instance (a new user).
+        
         Args:
-            user_name (str): value when init user name of user.
-            access (str): value when init access level of user.
-            name (str): value when init name of user.
+            1. user_name (str): value when init user name of user.
+            2. access (str): value when init access level of user.
+            3. name (str): value when init name of user.
         """
         self.user_name = user_name
         self.access = access
         self.name = name
 
+    # ==================== GETTERS ====================
     def get_user_name(self):
         # YOUR CODES START HERE
         """
@@ -55,11 +59,12 @@ class Role:
 class RoleBasedVocabSys:
     """
     RoleBasedVocabSys class to define instance of role-based vocabulary system.
+    
     Instance Variables:
-        users_info (dict): Dictionary of collection of users
-        current_user (Role): current user log in
-        text_processor (TextProcessor): Text processor
-        exit (boolean): Check is system exit or not.
+        1. users_info (dict): Dictionary of collection of users
+        2. current_user (Role): current user log in
+        3. text_processor (TextProcessor): Text processor
+        4. exit (boolean): Check is system exit or not.
     """
     def __init__(
             self,
@@ -69,14 +74,16 @@ class RoleBasedVocabSys:
             idx2label_filepath
     ):
         # YOUR CODES START HERE
-        # replace with correct initialization
         """
-        Constructor a Role based vocabulary system
+        ========== Role Constructor ==========
+        
+        Initialise a RoleBasedVocabSys instance
+        
         Args:
-            users_info: Dictionary of collection of users.
-            stopwords_filepath: Path of stopwords file.
-            corpus_filepath: Path of corpus file.
-            idx2label_filepath: Path of idx2label file.
+            1. users_info: Dictionary of collection of users.
+            2. stopwords_filepath: Path of stopwords file.
+            3. corpus_filepath: Path of corpus file.
+            4. idx2label_filepath: Path of idx2label file.
         """
         self.users_info = users_info
         self.current_user = None
@@ -88,14 +95,19 @@ class RoleBasedVocabSys:
         # YOUR CODES START HERE
         """
         This function start role based vocabulary system.
+        
         Returns:
             This function return nothing. It will start role based vocabulary system and exit
             when user choose option exit.
         """
         user_choice = None
+        
+        # Main program loop -> until user quit
         while user_choice != "1":
+            # Print the menu promt and get user choice
             menu = self.generate_menu()
             print(menu)
+            
             user_choice = self.get_user_choice()
 
             # Login action
@@ -107,16 +119,17 @@ class RoleBasedVocabSys:
                     self.login()
                 continue
 
+            # Get user access for different menu choices and word list for according actions
             access = self.current_user.get_access()
-
-            word_list = self.text_processor.get_word_sorted_by_freq()
+            word_freq = self.text_processor.get_word_freq()
+            word_list = self.text_processor.get_word_sorted_by_freq(word_freq)
 
             # Action when user log in for both reader and admin
             if user_choice == "1":
                 print("Exited")
                 continue
             elif user_choice == "2":
-                self.current_user = None
+                self.current_user = None # logout - reset current_user state
                 print("Logged out.")
                 continue
             # Print top 10 frequency words
@@ -206,6 +219,7 @@ class RoleBasedVocabSys:
         # YOUR CODES START HERE
         """
         This function verify_user_choice which based on user role.
+        
         Args:
             user_choice str: user choice from 1 to 6 and verified by user's role
 
@@ -227,7 +241,8 @@ class RoleBasedVocabSys:
 
     def get_user_choice(self):
         """
-        Read a single valid menu choice and dispatch the action based on state/role.
+        This function read a single valid menu choice and dispatch the action based on state/role.
+        
         Returns:
             This fucntion return nothing. This return is used for exiting the function
         """
@@ -241,6 +256,7 @@ class RoleBasedVocabSys:
     def login(self):
         """
         This function allow user login their account when the system starts.
+        
         Returns:
             This function return nothing.
         """

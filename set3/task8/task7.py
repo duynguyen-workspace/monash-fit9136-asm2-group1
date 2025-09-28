@@ -75,7 +75,6 @@ class TextProcessor:
         # Add word / Update word frequencies and overwrite files
         self._add_freq_to_wordfreq(corpus_texts)
         self.save()
-        
 
     def _add_freq_to_wordfreq(self, corpus_texts: List[str] | pd.Series) -> None:
         """

@@ -36,13 +36,16 @@ def updating_for_adding(
     """
     if isinstance(added_files, str):
         added_files = [added_files]
+
     stopwords = get_stopwords(stopwords_path)
     word_freq = load_word_freq(f"{in_path}/{WORD_FREQ_FILEPATH}")
+    
     for element in added_files:
         with open(element, "r") as f:
             text = f.read()
 
         vocabs = get_vocabs(text=text, stopwords=stopwords)
+        
         if not vocabs:
             continue
 
@@ -52,8 +55,10 @@ def updating_for_adding(
 
     words_list = list(word_freq.keys())
     freqs_list = [word_freq[word] for word in words_list]
+    
     word = tuple(words_list)
     freq = tuple(freqs_list)
+    
     save_word_freq(word, freq, f"{out_path}/{WORD_FREQ_FILEPATH}")
     save_word2idx(word, f"{out_path}/{WORD2IDX_FILEPATH}")
     save_idx2word(word, f"{out_path}/{IDX2WORD_FILEPATH}")
@@ -84,8 +89,10 @@ def updating_for_deleting(
     """
     if isinstance(excluded_files, str):
         excluded_files = [excluded_files]
+        
     stopwords = get_stopwords(stopwords_path)
     word_freq = load_word_freq(file_path=f"{in_path}/{WORD_FREQ_FILEPATH}")
+    
     for element in excluded_files:
         with open(element, "r") as f:
             text = f.read()
@@ -105,8 +112,10 @@ def updating_for_deleting(
 
     words_list = list(word_freq.keys())
     freqs_list = [word_freq[word] for word in words_list]
+    
     word = tuple(words_list)
     freq = tuple(freqs_list)
+    
     save_word_freq(word, freq, f"{out_path}/{WORD_FREQ_FILEPATH}")
     save_word2idx(word, f"{out_path}/{WORD2IDX_FILEPATH}")
     save_idx2word(word, f"{out_path}/{IDX2WORD_FILEPATH}")
