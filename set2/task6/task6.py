@@ -6,7 +6,7 @@ from task5 import (
 
 # CONSTANT FILE PATH
 WORD_FREQ_FILEPATH = "word_freq.txt"
-WORD2IDX_FILEPATH = "word2idx"
+WORD2IDX_FILEPATH = "word2idx.txt"
 IDX2WORD_FILEPATH = "idx2word.txt"
 
 def updating_for_adding(
