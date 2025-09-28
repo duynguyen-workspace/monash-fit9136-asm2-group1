@@ -1,98 +1,93 @@
+from typing import Dict, List
+
 # ============== TASK 1 FUNCTIONS ==============
-from typing import Dict
-
-def mark_str_to_dict(mark_str: str) -> Dict[str, int | float]:
-    """
-    Convert a string of marks where each pair has form "A{1,2,3,...}:score"
-    into a dictionary.
-    Args:
-        mark_str (str): String of marks.
-
-    Returns:
-        Dict[str, int | float]: The dictionary which mapping
-        each mark to its assignment.
-    """
-    mark_dict: Dict[str, int | float] = {}
-    marks = mark_str.split(",")
-    for mark in marks:
-        key , value = mark.split(":")
-        # Prevent from having whitespace in value
-        value = value.strip()
-        mark_dict[key.strip()] = float(value) if "." in value else int(value)
-    return mark_dict
-
 def fix_invalid_value(mark: int | float) -> int | float:
     """
-    Fix the invalid value of a mark if it not in the interval [0,100].
+    This function fixes invalid assignment marks that are greater than 100 or 
+    less than 0 by replacing them with -inf.
+    
     Args:
-        mark (int | float): The mark to check value.
+        1. mark (int | float): The mark to be validated and fixed.
 
     Returns:
-        int | float: Return -inf value if it is not in the interval [0,100]
-        else return the original value.
+        int | float: The original mark if valid, otherwise -inf (float) for invalid marks.
     """
     if mark > 100 or mark < 0:
         return float("-inf")
     else:
-         return mark
+        return mark
 
 def mark_str_to_dict_revised(mark_str: str) -> Dict[str, int | float]:
     """
-    Convert the strings of mark to dictionary with valid value.
-    The value will have type float if it has . in string else its type is int.
+    This function converts a string of assignment marks into a dictionary 
+    while fixing invalid marks (greater than 100 or less than 0).
+    
     Args:
-        mark_str (str): String of marks.
+        1. mark_str: <str> String of assignment names and marks in the format 
+        "A1: 100, A2: 95, A3: 91.5"
 
     Returns:
-        Dict[str, int | float]: The dictionary which mapping each mark to its assignment
-        with correct type and valid value.
+        mark_dict: Dict[str, int | float]: A dictionary with assignment names 
+        as keys and their corresponding marks as values, with correct type and valid value.
     """
-    mark_dict: Dict[str, int | float] = {}
+    if not mark_str:
+        return {}
+    
+    # Get assignment names and marks, store them corresponding to the dictionary
+    mark_dict = {}
+    
     marks = mark_str.split(",")
     for mark in marks:
-        key , value = mark.split(":")
-        # Prevent from having whitespace in key and value
-        value = value.strip()
-        key = key.strip()
-        value = float(value) if "." in value else int(value)
-        mark_dict[key] = fix_invalid_value(value)
+        asm_name, asm_mark = mark.split(":")
+        # prevent whitespace in key & value
+        asm_name = asm_name.strip()
+        asm_mark = asm_mark.strip()
+        
+        asm_mark = float(asm_mark) if "." in asm_mark else int(asm_mark) # int / float corresponding conversion
+        mark_dict[asm_name] = fix_invalid_value(asm_mark)
     return mark_dict
 
 
 def process_multiple_students_marks(mark_dict: Dict[str, str]) -> Dict[str, int | float]:
     """
-    Handle multiple students marks with their values have type string then after conversion
-    return the collection for all students.
+    This function processes the marks of multiple students by converting 
+    their assignment mark strings into dictionaries and fixing invalid values.
+    
     Args:
-        mark_dict (Dict[str, str]): Multiple students' records.
+        1. mark_dict (Dict[str, str]): A dictionary where the keys are 
+        student names and values are their assignment marks as strings.
 
     Returns:
-         Dict[str, int | float]: Dictionary which is collection for all students.
+        Dict[str, int | float]: A dictionary with student names as keys, 
+        and their processed marks as sub-dictionaries.
     """
-    for key in mark_dict.keys():
-        mark_dict[key] = mark_str_to_dict_revised(mark_dict[key])
+    for student in mark_dict.keys():
+        mark_dict[student] = mark_str_to_dict_revised(mark_dict[student])
+
     return mark_dict
 
-def summarize_marks(marks: Dict[str, Dict], split: str) -> dict:
+def summarize_marks(marks: Dict[str, Dict], split: str) -> Dict[str, int]:
     """
-    Summarize the average score, number of students, number of marks in one Assignment in
-    the collection of students.
+    This function summarizes the result for a specific assignment: 
+    calculating the average, number of invalid and valid marks.
+    
     Args:
-        marks (Dict[str, Dict]): Dictionary which is collection for all students.
-        split (str): Assignment want to summarize.
+        1. marks (Dict[str, Dict]): Dictionary which is collection for all students.
+        2. split (str): Assignment want to summarize.
 
     Returns:
-        dict: which contain average score, number of invalid marks,
-        number of valid marks of input assignment.
+        Dict[str, int]: A dictionary containing the average mark, invalid count, 
+        and valid count for the specified assignment.
     """
-    total_sum = 0.0
+    total_sum = 0
     invalid_count = 0
     valid_count = 0
-    for key in marks.keys():
-        mark = marks[key].get(split)
+    
+    for student in marks.keys():
+        mark = marks[student][split]
 
         # Skip student who don't have mark on assignment
-        if mark is None:
+        if not mark:
             continue
 
         if mark != float("-inf"):
@@ -100,49 +95,47 @@ def summarize_marks(marks: Dict[str, Dict], split: str) -> dict:
             total_sum +=mark
         else:
             invalid_count += 1
+            
+    # calculate average mark and convert to appropriate data type (int | float)
     if valid_count == 0:
         average_mark = 0
     else:
         average_mark = total_sum / valid_count
-    return {"average_mark": average_mark,
-    "invalid_count": invalid_count,
-    "valid_count": valid_count}
+        
+    final_average_mark = int(average_mark) if isinstance(average_mark, float) and average_mark.is_integer() else average_mark
+    
+    return {
+        "average_mark": final_average_mark,
+        "invalid_count": invalid_count,
+        "valid_count": valid_count
+    }
 
 #####################################################
 
 # ------------------ MAIN FUNCTION ------------------
-def main(user_info, mark_unprocessed) -> None:
+def main(user_info: Dict[str, str], mark_unprocessed: Dict[str, str]) -> None:
     """
     This function starts the main Program
 
-    Params:
-        1. user_info: <dict> the dictionary that contains user information (username, password)
-        2. mark_unprocessed: <dict> contain the list of marks 
+    Args:
+        1. user_info (Dict[str, str]): the dictionary contains user's information (username, password)
+        2. mark_unprocessed (Dict[str, str]): contain the list of marks 
 
     Returns:
         None - this function only control the logic of the main program
-
-    Notes: 
-        - May implement checking for user_info dict (containing the key + value needed)
     """
-
-    # REUSABLE VARIABLES - username, password from user dict + processed marks
-    marks_processed = process_multiple_students_marks(mark_unprocessed) # from task1
-
-    # for username, password in user_info.items():
-    #     valid_username = username
-    #     valid_password = password
 
     # DEFAULT CONSTANTS
     MENU_DEFAULT_PROMPT = "Welcome to the Mark system v0.0!\nPlease Login:\n1.Exit\n2.Login\nYour choice (number only): "
-
     MENU_DEFAULT_OPTIONS = ["1", "2"]
-
     MENU_LOGIN_OPTIONS = ["1", "2", "3", "4"]
 
     # STATES 
     login_user = None
     user_choice = None
+    
+    # Processed student's marks dictionary
+    marks_processed = process_multiple_students_marks(mark_unprocessed)
 
     # MAIN MENU starts
     while user_choice != "1":
@@ -152,7 +145,7 @@ def main(user_info, mark_unprocessed) -> None:
             user_choice = get_menu_choice(MENU_DEFAULT_PROMPT, MENU_DEFAULT_OPTIONS)
         else:
             username = login_user.get('username')
-            MENU_LOGIN_PROMPT = "Welcome {}\nPlease choose one option below:\n1.Exit\n2.Re-Login\n3.Show mark records\n4.Show summarization\nYour choice (number only): ".format(username)
+            MENU_LOGIN_PROMPT = f"Welcome {username}\nPlease choose one option below:\n1.Exit\n2.Re-Login\n3.Show mark records\n4.Show summarization\nYour choice (number only): "
 
             user_choice = get_menu_choice(MENU_LOGIN_PROMPT, MENU_LOGIN_OPTIONS)
 
@@ -183,10 +176,10 @@ def login(user_info: Dict[str, str]) -> Dict[str, str] | None:
     """
     This function performs the login action and return the login user
 
-    Params:
-        1. user_info: contain all the users info: including usernames and passwords
+    Args:
+        1. user_info (Dict[str, str]): contain all the users info: including usernames and passwords
 
-    Return:
+    Returns:
         Dict[str, str] | None: the login user info, containing their 
         username and password. Or None (if incorrect username / password)
 
@@ -217,7 +210,7 @@ def exit() -> None:
     """
     This function finish (ends) the system
 
-    Params: 
+    Args: 
         None
 
     Return:
@@ -225,12 +218,12 @@ def exit() -> None:
     """
     print("==================================\nSee u!")
 
-def show_mark_records(marks: dict) -> None:
+def show_mark_records(marks: Dict[str, int | float]) -> None:
     """
-    This function show the marks records (task1 function)
+    This function show the marks records from the dictionary
 
-    Params:
-        1. marks: the dictionary containing the students and their marks
+    Args:
+        1. marks (Dict[str, int | float]): the dictionary containing the student names and their marks
 
     Return:
         None: the output is print out to the console
@@ -248,54 +241,48 @@ def show_summarization(login_user: Dict[str, str], marks: Dict[str, Dict[str, in
     This function show the summarization of an assignment based on the given marks 
     (reuse task 1 function)
 
-    Params:
-        1. login_user: <Dict[str, str]> the user info dictionary containing
+    Args:
+        1. login_user (Dict[str, str]): the user info dictionary containing
         student's username and password
-        2. marks: <Dict[str, Dict[str, int]]> the dictionary containing 
+        2. marks(Dict[str, Dict[str, int]]): the dictionary containing 
         the students and their marks
 
     Return:
         None: the output is print out to the console
     """
-    # Get available marks and compute the menu prompt
-    assignments = set()
-    for student in marks.values():
-        assignments.update(student.keys())
-
-    if not assignments:
+    # Get available marks from the user and compute the menu prompt
+    available_marks = marks.get('username').keys()
+    
+    if not available_marks:
         return
-
-    assignments = sorted(assignments,reverse=True)
-    assignments = set(assignments)
+    
+    asm_names = ", ".join(f"'{name}'" for name in available_marks)
     
     MENU_SUMMARY_PROMPT = (
-        f"Available Assignments: {assignments}\n"
+        f"Available Assignments: {{{asm_names}}}\n" 
         "The Assignment you want to check (e.g., A1): "
-    )
-    MENU_SUMMARY_OPTIONS = list(assignments)
+    ) # escape characters {{ }}
+    MENU_SUMMARY_OPTIONS = list(available_marks)
 
     chosen_assignment = get_menu_choice(MENU_SUMMARY_PROMPT, MENU_SUMMARY_OPTIONS)
     marks_summary = summarize_marks(marks, chosen_assignment)
 
-    print("==================================")
-    print(f"Results For {chosen_assignment}:")
-
-
+    print("==================================") # seperator
 
     for label, value in marks_summary.items():
         print(f"{label}: {value}")
 
 # UTILITY FUNCTIONS --------------------------------------
-def get_menu_choice(prompt: str, options: list) -> str:
+def get_menu_choice(prompt: str, options: List[str]) -> str:
     """
     This function gets valid input from user based on the available options
     
-    Params:
-        1. prompt: <str> the message print to the console when request user's input
-        2. options: <list> the available options for user to input 
+    Args:
+        1. prompt (str): the message print to the console when request user's input
+        2. options (List[str]): the available options for user to input 
 
-    Return
-        user_input: <str> the valid user's choice 
+    Returns
+        user_input (str): the valid user's choice 
     """
     is_input_valid = False
 
