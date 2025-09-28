@@ -120,13 +120,13 @@ if __name__ == '__main__':
     updating_for_adding(
         stopwords_path="./data/stop_words_english.txt",
         added_files=add_files,
-        in_path="./data/old",
-        out_path="./data/new"
+        in_path="./old",
+        out_path="./new"
     )
 
     updating_for_deleting(
         stopwords_path="./data/stop_words_english.txt",
         excluded_files="./data/new_delete0.txt",
-        in_path="./data/old",
-        out_path="./data/new"
+        in_path="./old",
+        out_path="./new"
     )
