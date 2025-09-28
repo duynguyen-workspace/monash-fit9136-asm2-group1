@@ -59,7 +59,14 @@ class EssayScorer:
 
         if not essay:
             print("Essay is not found!")
-            return {}
+            return {
+                'length': 0.0,
+                'relevance': 0.0,
+                'rarity': 0.0,
+                'variety': 0.0,
+                'penalty': 0.0,
+                'total_score': 0.0
+            }
 
         # Calculate and all the component score + the final total score
         length_score = self._get_length_score(essay)
@@ -94,11 +101,16 @@ class EssayScorer:
 
         Requirements:
             The length score will be evaluate if the word count is:
+            - Case 0: empty essay
+                --> 0 mark
             - Case 1: between 300 and 500 words 
                 --> 10 marks
             - Case 2: Shorter than 300 words / Longer than 500 words
                 --> 10% deduction for every 20 words under / overshoot, cap at 0
         """
+        if len(essay) == 0:
+            return 0.0
+        
         # Count total words appear in the essay
         essay_word_freq = self.text_processor.extract_word_freq(essay, [])
         word_count = sum(essay_word_freq.values())
@@ -136,6 +148,8 @@ class EssayScorer:
             - Case 3: no topic words appear
                 --> 0 mark
         """
+        if len(essay) == 0:
+            return 0.0
 
         # Get the topic words list from the problem statement
         stopwords = self.text_processor.get_stopwords()
@@ -179,6 +193,9 @@ class EssayScorer:
             - 51-100: 2 marks
             - > 100: 1 mark
         """
+        if len(essay) == 0:
+            return 0.0
+        
         # Get the unique words list from the essay and the word list from the TextProcessor corpus
         essay_word_freq = self.text_processor.extract_word_freq(essay, self.text_processor.get_stopwords())
         unique_words = essay_word_freq.keys()
@@ -231,6 +248,9 @@ class EssayScorer:
             Let U = number of unique non-stopwords, L = total non-stopwords appear
             --> variety_score = 20 * math.sqrt(U / L)
         """
+        if len(essay) == 0:
+            return 0.0
+        
         # Get the word_count for unique words and all words appear (excluding stopwords)
         essay_word_freq = self.text_processor.extract_word_freq(essay, self.text_processor.get_stopwords())
         unique_words_count = len(essay_word_freq.keys())
@@ -256,6 +276,9 @@ class EssayScorer:
         Requirements: 
             Subtract 10 marks if 50% of essay are stopwords
         """
+        if len(essay) == 0:
+            return 0.0
+        
         # Count the number of stopwords and total word_count of the essay
         essay_word_freq = self.text_processor.extract_word_freq(essay, [])
         stopwords = self.text_processor.get_stopwords()
